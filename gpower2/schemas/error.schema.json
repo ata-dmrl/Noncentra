@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gpower2/error/1.0",
+  "title": "Error",
+  "type": "object",
+  "required": ["contract_version", "error"],
+  "properties": {
+    "contract_version": {"const": "1.0"},
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {"enum": ["invalid_input", "no_solution", "no_convergence"]},
+        "message": {"type": "string"}
+      }
+    }
+  }
+}

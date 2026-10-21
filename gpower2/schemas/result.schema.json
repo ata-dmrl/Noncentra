@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gpower2/result/1.0",
+  "title": "Power analysis result",
+  "type": "object",
+  "required": ["contract_version", "test", "analysis", "input", "output"],
+  "properties": {
+    "contract_version": {"const": "1.0"},
+    "test": {"type": "string"},
+    "analysis": {"enum": ["post_hoc", "a_priori", "sensitivity", "criterion", "compromise"]},
+    "input": {"type": "object", "required": ["options", "params"]},
+    "output": {
+      "type": "object",
+      "required": ["power", "alpha", "beta", "effect_size", "sizes", "n_total", "df",
+                   "noncentrality", "critical_value"],
+      "properties": {
+        "power": {"type": "number", "minimum": 0, "maximum": 1},
+        "alpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "beta": {"type": "number", "minimum": 0, "maximum": 1},
+        "effect_size": {"type": "number"},
+        "sizes": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 2}},
+        "n_total": {"type": "integer", "minimum": 2},
+        "df": {"type": "number", "exclusiveMinimum": 0},
+        "noncentrality": {"type": "number"},
+        "critical_value": {"type": "number"},
+        "df_num": {"type": "number", "exclusiveMinimum": 0, "description": "numerator df (F tests); df is then the denominator df"},
+        "tails": {"enum": [1, 2], "description": "t tests only"},
+        "groups": {"type": "integer"},
+        "predictors": {"type": "integer"},
+        "tested": {"type": "integer"},
+        "beta_alpha_ratio": {"type": "number"}
+      }
+    }
+  }
+}

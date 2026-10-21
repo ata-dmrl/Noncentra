@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gpower2 güç analizi</title>
+<meta name="build" content="c38764d9ca">
+<link rel="stylesheet" href="style.css?v=c38764d9ca">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">1−β</span>
+    <div>
+      <h1>gpower2</h1>
+      <p class="sub">İstatistiksel güç analizi · G*Power 3.1.9.7 ile doğrulandı</p>
+    </div>
+  </div>
+  <div class="engine">
+    <label for="engine">Motor</label>
+    <select id="engine">
+      <option value="pyodide">Tarayıcı (Pyodide)</option>
+      <option value="api">Sunucu (FastAPI)</option>
+    </select>
+    <span id="engine-status" class="status" role="status">hazırlanıyor…</span>
+  </div>
+</header>
+
+<main class="layout">
+  <form id="form" class="panel inputs" novalidate>
+    <h2>Girdi</h2>
+    <div class="field">
+      <label for="test">Test</label>
+      <select id="test"></select>
+    </div>
+    <div class="field">
+      <label for="analysis">Analiz türü</label>
+      <select id="analysis">
+        <option value="a_priori">A priori: gerekli örneklem büyüklüğü</option>
+        <option value="post_hoc">Post hoc: ulaşılan güç</option>
+        <option value="sensitivity">Sensitivity: gerekli etki büyüklüğü</option>
+        <option value="criterion">Criterion: gerekli α</option>
+        <option value="compromise">Compromise: β/α oranından α ve güç</option>
+      </select>
+    </div>
+    <div id="fields"></div>
+    <button type="submit" id="calc" class="primary" disabled>Hesapla</button>
+    <p id="error" class="error" role="alert" hidden></p>
+  </form>
+
+  <section class="panel results" aria-live="polite">
+    <h2>Sonuç</h2>
+    <div id="headline" class="headline"><span class="muted">Henüz hesaplama yok.</span></div>
+    <table id="out" class="out"></table>
+    <div class="actions">
+      <button type="button" id="copy-protocol" disabled>Protokolü kopyala</button>
+      <button type="button" id="download-json" disabled>JSON indir</button>
+      <button type="button" id="share" disabled>Paylaşım bağlantısı</button>
+    </div>
+    <pre id="protocol" class="protocol" hidden></pre>
+  </section>
+
+  <section class="panel dist">
+    <div class="plot-head">
+      <h2>Merkezi ve merkezi olmayan dağılımlar</h2>
+      <p class="muted">H0 (kırmızı) ve H1 (mavi, kesikli) altında test istatistiği; G*Power'daki görünüm</p>
+    </div>
+    <div id="dist" class="chart"><span class="muted">Hesaplamadan sonra çizilir.</span></div>
+    <div id="dist-legend" class="legend"></div>
+  </section>
+
+  <section class="panel plot">
+    <div class="plot-head">
+      <h2>Güç eğrisi</h2>
+      <p class="muted">Toplam örneklem büyüklüğüne göre güç; çizgiler farklı etki büyüklükleri</p>
+    </div>
+    <div id="chart" class="chart"><span class="muted">Hesaplamadan sonra çizilir.</span></div>
+    <div id="legend" class="legend"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  Formüller yayınlanmış kaynaklardan (Faul vd. 2007, 2009; Cohen 1988) yazıldı; G*Power kodu kullanılmadı.
+  <a href="/docs" id="api-docs" hidden>API belgeleri</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"
+        integrity="sha384-i3R37b3tF+HWudsUf1VSEOY2YxwSNMqY8DQa9Z0O3xh+NkJ9o+yjcGyIi5huj+nB"
+        crossorigin="anonymous"></script>
+<script src="app.js?v=c38764d9ca"></script>
+</body>
+</html>

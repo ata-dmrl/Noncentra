@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gpower2/request/1.0",
+  "title": "Power analysis request",
+  "type": "object",
+  "required": ["test", "analysis"],
+  "additionalProperties": false,
+  "properties": {
+    "test": {"type": "string", "examples": ["t.two_sample", "t.one_sample", "t.paired", "f.anova_oneway",
+                                            "f.regression_r2", "f.regression_r2_increase"]},
+    "analysis": {"enum": ["post_hoc", "a_priori", "sensitivity", "criterion", "compromise"]},
+    "options": {
+      "type": "object",
+      "properties": {
+        "tails": {"enum": [1, 2]},
+        "ratio": {"type": "number", "exclusiveMinimum": 0},
+        "groups": {"type": "integer", "minimum": 2},
+        "predictors": {"type": "integer", "minimum": 1},
+        "tested": {"type": "integer", "minimum": 1}
+      }
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "effect_size": {"type": "number"},
+        "alpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "power": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "beta_alpha_ratio": {"type": "number", "exclusiveMinimum": 0},
+        "sizes": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 2}}
+      }
+    }
+  }
+}

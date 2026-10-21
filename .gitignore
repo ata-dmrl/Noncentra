@@ -1,0 +1,41 @@
+# --- G*Power itself: proprietary (© Franz Faul), never redistribute ---
+# The installer, the extracted program and anything dumped from its binary.
+# Get G*Power from the official HHU site; see docs/teardown-report.md.
+target/
+teardown/evidence/
+*.exe
+*.dll
+
+# --- Generated output ---
+reports/
+# Browser bundle; build with: python web/build_bundle.py
+web/gpower2.zip
+*.log
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# --- Secrets and local settings ---
+.env
+.env.*
+*.pem
+*.key
+
+# --- Editors / OS / tools ---
+.claude/settings.local.json
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

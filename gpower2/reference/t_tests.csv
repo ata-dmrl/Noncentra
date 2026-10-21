@@ -1,0 +1,5 @@
+id,test,analysis,tails,ratio,effect_size,alpha,power,n1,n2,n,exp_n1,exp_n2,exp_n,exp_power,exp_critical,source
+ts_ap_80,t.two_sample,a_priori,2,1,0.5,0.05,0.80,,,,64,64,,0.8014596,1.9789706,literature-verified-by-harvest
+ts_ap_95,t.two_sample,a_priori,2,1,0.5,0.05,0.95,,,,105,105,,0.9501287,1.9714347,literature-verified-by-harvest
+ts_ap_95_1t,t.two_sample,a_priori,1,1,0.5,0.05,0.95,,,,88,88,,0.9514254,1.6536580,gpower-manual-verified-by-harvest
+pa_ap_80,t.paired,a_priori,2,,0.5,0.05,0.80,,,,,,34,0.8077775,2.0345153,literature-verified-by-harvest
