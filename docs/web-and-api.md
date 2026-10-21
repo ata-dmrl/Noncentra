@@ -38,6 +38,8 @@ Hata yanıtları `error.schema.json` biçimindedir. HTTP durum kodları CLI çı
 ## Web arayüzü
 
 - **Motor seçimi:** "Sunucu (FastAPI)" ya da "Tarayıcı (Pyodide 0.26.4 + scipy)". Pyodide ilk açılışta numpy/scipy indirir (~birkaç saniye); sonra her şey çevrimdışı hesaplanır.
+- **Düzen:** solda "1 · Test ayarları" (test, analiz türü, seçenekler) ve "2 · Değerler" (etki büyüklüğü, α, güç, örneklem); sağda düz Türkçe özet cümlesi, özet kartları ve "Girdiler | Sonuçlar" tablosu; altta iki grafik yan yana (1180 px altında alt alta). Sayfa açılışta kendiliğinden hesaplar.
+- **Rapor:** "Raporu indir", tek dosyalık bir HTML raporu kaydeder (`noncentra-rapor-<test>-<analiz>-<tarih>.html`). İçinde özet, ayarlar, girdiler, tüm sonuç değerleri, iki grafik (SVG, açık tema) ve protokol bulunur. "PDF / Yazdır" aynı raporu yazdırma penceresinde açar; oradan "PDF olarak kaydet" seçilebilir.
 - **Dağılım grafiği:** G*Power'ın "Central and noncentral distributions" görünümünün karşılığı: H0 kırmızı düz, H1 mavi kesikli, kritik değerler yeşil, β ve α (α/2) alanları taralı, başlıkta `critical t/F`. Yoğunluklar Python'da hesaplanır, iki motor aynı veriyi çizer. df_num = 1 olan F testlerinde 0'daki sonsuz tepe kırpılır.
 - **Özellikler:** 6 test × 5 analiz türü, Cohen etki büyüklüğü kısayolları, G*Power tarzı protokol (kopyala), JSON indirme, paylaşılabilir bağlantı (tüm girdiler URL hash'inde) ve güç–N eğrisi (seçilen etki büyüklüğü + iki konvansiyonel değer, hedef güç çizgisi).
 - **Güvenlik:** `pyodide.js` SRI hash'iyle yükleniyor. Motordan gelen hata mesajları, kullanıcı girdisini (ör. URL'deki test adı) içerebileceği için HTML olarak değil düz metin olarak gösteriliyor.

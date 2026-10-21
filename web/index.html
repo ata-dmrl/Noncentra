@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Noncentra güç analizi</title>
-<meta name="build" content="670b6cff5f">
-<link rel="stylesheet" href="style.css?v=670b6cff5f">
+<meta name="build" content="a32ef9dada">
+<link rel="stylesheet" href="style.css?v=a32ef9dada">
 </head>
 <body>
 <header class="top">
@@ -13,80 +13,103 @@
     <span class="logo" aria-hidden="true">1−β</span>
     <div>
       <h1>Noncentra</h1>
-      <p class="sub">İstatistiksel güç analizi · G*Power 3.1.9.7 ile doğrulandı</p>
+      <p class="sub">İstatistiksel güç analizi</p>
     </div>
   </div>
   <div class="engine">
-    <label for="engine">Motor</label>
+    <label for="engine">Hesaplama</label>
     <select id="engine">
-      <option value="pyodide">Tarayıcı (Pyodide)</option>
-      <option value="api">Sunucu (FastAPI)</option>
+      <option value="api">Sunucu</option>
+      <option value="pyodide">Tarayıcı (çevrimdışı)</option>
     </select>
     <span id="engine-status" class="status" role="status">hazırlanıyor…</span>
   </div>
 </header>
 
 <main class="layout">
-  <form id="form" class="panel inputs" novalidate>
-    <h2>Girdi</h2>
-    <div class="field">
-      <label for="test">Test</label>
-      <select id="test"></select>
-    </div>
-    <div class="field">
-      <label for="analysis">Analiz türü</label>
-      <select id="analysis">
-        <option value="a_priori">A priori: gerekli örneklem büyüklüğü</option>
-        <option value="post_hoc">Post hoc: ulaşılan güç</option>
-        <option value="sensitivity">Sensitivity: gerekli etki büyüklüğü</option>
-        <option value="criterion">Criterion: gerekli α</option>
-        <option value="compromise">Compromise: β/α oranından α ve güç</option>
-      </select>
-    </div>
-    <div id="fields"></div>
-    <button type="submit" id="calc" class="primary" disabled>Hesapla</button>
-    <p id="error" class="error" role="alert" hidden></p>
+  <form id="form" class="sidebar" novalidate>
+    <section class="card">
+      <h2><span class="step">1</span>Test ayarları</h2>
+      <div class="field">
+        <label for="test">Test</label>
+        <select id="test"></select>
+      </div>
+      <div class="field">
+        <label for="analysis">Ne hesaplansın?</label>
+        <select id="analysis">
+          <option value="a_priori">Gerekli örneklem büyüklüğü (a priori)</option>
+          <option value="post_hoc">Ulaşılan güç (post hoc)</option>
+          <option value="sensitivity">Saptanabilir etki büyüklüğü (sensitivity)</option>
+          <option value="criterion">Gerekli α (criterion)</option>
+          <option value="compromise">β/α oranından α ve güç (compromise)</option>
+        </select>
+      </div>
+      <div id="settings-fields"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">2</span>Değerler</h2>
+      <div id="value-fields"></div>
+      <button type="submit" id="calc" class="primary" disabled>Hesapla</button>
+      <p id="error" class="error" role="alert" hidden></p>
+    </section>
   </form>
 
-  <section class="panel results" aria-live="polite">
-    <h2>Sonuç</h2>
-    <div id="headline" class="headline"><span class="muted">Henüz hesaplama yok.</span></div>
-    <table id="out" class="out"></table>
-    <div class="actions">
-      <button type="button" id="copy-protocol" disabled>Protokolü kopyala</button>
-      <button type="button" id="download-json" disabled>JSON indir</button>
-      <button type="button" id="share" disabled>Paylaşım bağlantısı</button>
-    </div>
-    <pre id="protocol" class="protocol" hidden></pre>
-  </section>
+  <div class="content">
+    <section class="card results" aria-live="polite">
+      <div class="card-head">
+        <h2>Sonuç</h2>
+        <div class="actions">
+          <button type="button" id="download-report" class="accent" disabled>Raporu indir</button>
+          <button type="button" id="print-report" disabled>PDF / Yazdır</button>
+          <button type="button" id="download-json" disabled>JSON</button>
+          <button type="button" id="share" disabled>Bağlantı</button>
+        </div>
+      </div>
+      <p id="summary" class="summary muted">Değerleri girip Hesapla'ya basın.</p>
+      <div id="headline" class="headline"></div>
+      <div class="tables">
+        <div>
+          <h3>Girdiler</h3>
+          <table id="in-table" class="kv"></table>
+        </div>
+        <div>
+          <h3>Sonuçlar</h3>
+          <table id="out-table" class="kv"></table>
+        </div>
+      </div>
+      <details class="protocol-box">
+        <summary>G*Power tarzı protokol</summary>
+        <pre id="protocol" class="protocol"></pre>
+        <button type="button" id="copy-protocol" disabled>Protokolü kopyala</button>
+      </details>
+    </section>
 
-  <section class="panel dist">
-    <div class="plot-head">
-      <h2>Merkezi ve merkezi olmayan dağılımlar</h2>
-      <p class="muted">H0 (kırmızı) ve H1 (mavi, kesikli) altında test istatistiği; G*Power'daki görünüm</p>
+    <div class="charts">
+      <section class="card">
+        <h2>Merkezi ve merkezi olmayan dağılımlar</h2>
+        <p class="hint">Kırmızı: H0 · Mavi kesikli: H1 · Yeşil: kritik değer</p>
+        <div id="dist" class="chart"><span class="muted">Hesaplamadan sonra çizilir.</span></div>
+        <div id="dist-legend" class="legend"></div>
+      </section>
+      <section class="card">
+        <h2>Güç eğrisi</h2>
+        <p class="hint">Toplam örneklem büyüklüğüne göre güç</p>
+        <div id="chart" class="chart"><span class="muted">Hesaplamadan sonra çizilir.</span></div>
+        <div id="legend" class="legend"></div>
+      </section>
     </div>
-    <div id="dist" class="chart"><span class="muted">Hesaplamadan sonra çizilir.</span></div>
-    <div id="dist-legend" class="legend"></div>
-  </section>
-
-  <section class="panel plot">
-    <div class="plot-head">
-      <h2>Güç eğrisi</h2>
-      <p class="muted">Toplam örneklem büyüklüğüne göre güç; çizgiler farklı etki büyüklükleri</p>
-    </div>
-    <div id="chart" class="chart"><span class="muted">Hesaplamadan sonra çizilir.</span></div>
-    <div id="legend" class="legend"></div>
-  </section>
+  </div>
 </main>
 
 <footer class="foot">
-  Formüller yayınlanmış kaynaklardan (Faul vd. 2007, 2009; Cohen 1988) yazıldı; G*Power kodu kullanılmadı.
+  Noncentra · G*Power 3.1.9.7 ile doğrulandı · Formüller yayınlanmış kaynaklardan (Faul vd. 2007, 2009; Cohen 1988)
   <a href="/docs" id="api-docs" hidden>API belgeleri</a>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"
         integrity="sha384-i3R37b3tF+HWudsUf1VSEOY2YxwSNMqY8DQa9Z0O3xh+NkJ9o+yjcGyIi5huj+nB"
         crossorigin="anonymous"></script>
-<script src="app.js?v=670b6cff5f"></script>
+<script src="app.js?v=a32ef9dada"></script>
 </body>
 </html>

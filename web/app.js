@@ -107,6 +107,11 @@ function currentTest() {
   return state.tests.find((t) => t.name === $("test").value);
 }
 
+// The test a finished request was for (the form may have changed since).
+function testOf(req) {
+  return state.tests.find((t) => t.name === req.test);
+}
+
 function renderTestSelect() {
   const sel = $("test");
   const keep = sel.value;
@@ -140,9 +145,13 @@ function renderFields(values = {}) {
   if (!test) return;
   const analysis = $("analysis").value;
   const needs = NEEDS[analysis];
-  const box = $("fields");
-  const old = Object.fromEntries([...box.querySelectorAll("input, select")].map((e) => [e.name, e.value]));
+  // Test options (tails, groups, …) go to the settings card, numbers to the values card.
+  const settings = $("settings-fields");
+  const box = $("value-fields");
+  const old = Object.fromEntries([...settings.querySelectorAll("input, select"), ...box.querySelectorAll("input, select")]
+    .map((e) => [e.name, e.value]));
   const val = (k, d) => values[k] ?? old[k] ?? d;
+  settings.innerHTML = "";
   box.innerHTML = "";
 
   for (const opt of test.options) {
@@ -152,11 +161,11 @@ function renderFields(values = {}) {
       wrap.className = "field";
       wrap.innerHTML = `<label for="f-tails">${OPTION_LABEL.tails}</label>
         <select id="f-tails" name="tails"><option value="2">İki yönlü</option><option value="1">Tek yönlü</option></select>`;
-      box.append(wrap);
+      settings.append(wrap);
       wrap.querySelector("select").value = String(val("tails", DEFAULTS.tails));
     } else {
       const integer = opt !== "ratio";
-      box.append(numberField(opt, OPTION_LABEL[opt], val(opt, DEFAULTS[opt]),
+      settings.append(numberField(opt, OPTION_LABEL[opt], val(opt, DEFAULTS[opt]),
         integer ? { step: 1, min: 1, inputMode: "numeric" } : { min: 0 }));
     }
   }
@@ -226,7 +235,7 @@ function outputRows(req, out) {
   const add = (label, v, input = false) => v !== undefined && rows.push({ label, value: fmt(v), input });
   if (out.tails) add(OPTION_LABEL.tails, out.tails, true);
   for (const k of ["groups", "predictors", "tested"]) add(OPTION_LABEL[k], out[k], true);
-  add(EFFECT_LABEL[currentTest().effect_size], out.effect_size, given.has("effect_size"));
+  add(EFFECT_LABEL[testOf(req).effect_size], out.effect_size, given.has("effect_size"));
   add("α hata olasılığı", out.alpha, given.has("alpha"));
   if (given.has("power")) add("İstenen güç (1−β)", req.params.power, true);
   if (out.beta_alpha_ratio !== undefined) add("β/α oranı", out.beta_alpha_ratio, true);
@@ -245,14 +254,14 @@ function headline(req, out) {
   switch (req.analysis) {
     case "a_priori": return m("toplam örneklem", out.n_total) + m("gerçekleşen güç", out.power.toFixed(4));
     case "post_hoc": return m("güç (1−β)", out.power.toFixed(4)) + m("toplam örneklem", out.n_total);
-    case "sensitivity": return m(EFFECT_LABEL[currentTest().effect_size].toLowerCase(), out.effect_size.toFixed(4));
+    case "sensitivity": return m(EFFECT_LABEL[testOf(req).effect_size].toLowerCase(), out.effect_size.toFixed(4));
     case "criterion": return m("gerekli α", out.alpha.toPrecision(4));
     default: return m("α", out.alpha.toPrecision(4)) + m("güç (1−β)", out.power.toFixed(4));
   }
 }
 
 function protocolText(req, out) {
-  const test = currentTest();
+  const test = testOf(req);
   const rows = outputRows(req, out);
   const line = (r) => `\t${r.label.padEnd(34)}= ${r.value}`;
   return [
@@ -263,13 +272,38 @@ function protocolText(req, out) {
   ].join("\n");
 }
 
+const pct = (v) => `%${(v * 100).toFixed(1).replace(/\.0$/, "")}`;
+
+// One plain-language sentence that says what the result means.
+function summaryText(req, out) {
+  const e = testOf(req).effect_size.replace("f2", "f²");
+  const sizes = Object.values(out.sizes);
+  const n = sizes.length > 1 ? `toplam ${out.n_total} (${sizes.join(" + ")})` : `${out.n_total}`;
+  const tails = out.tails ? (out.tails === 2 ? "İki yönlü testte, " : "Tek yönlü testte, ") : "";
+  switch (req.analysis) {
+    case "a_priori":
+      return `${tails}${e} = ${out.effect_size} büyüklüğündeki bir etkiyi α = ${out.alpha} ile en az ${pct(req.params.power)} güçle saptamak için ${n} katılımcı gerekir (gerçekleşen güç ${pct(out.power)}).`;
+    case "post_hoc":
+      return `${tails}${n} katılımcı ve α = ${out.alpha} ile ${e} = ${out.effect_size} büyüklüğündeki bir etkiyi saptama gücü ${pct(out.power)}.`;
+    case "sensitivity":
+      return `${tails}${n} katılımcı, α = ${out.alpha} ve ${pct(out.power)} güçle saptanabilecek en küçük etki ${e} = ${out.effect_size.toFixed(4)}.`;
+    case "criterion":
+      return `${tails}${n} katılımcıyla ${e} = ${out.effect_size} etkisine ${pct(out.power)} güç için α = ${out.alpha.toPrecision(4)} olmalı.`;
+    default:
+      return `${tails}β/α = ${out.beta_alpha_ratio} oranında α = ${out.alpha.toPrecision(4)} ve güç = ${pct(out.power)} olur (${n} katılımcı, ${e} = ${out.effect_size}).`;
+  }
+}
+
 function showResult(req, doc) {
   const out = doc.output;
+  const rows = outputRows(req, out);
+  const table = (list) => list.map((r) => `<tr><td>${r.label}</td><td>${r.value}</td></tr>`).join("");
+  $("summary").textContent = summaryText(req, out);
+  $("summary").classList.remove("muted");
   $("headline").innerHTML = headline(req, out);
-  $("out").innerHTML = outputRows(req, out)
-    .map((r) => `<tr class="${r.input ? "input" : ""}"><td>${r.label}</td><td>${r.value}</td></tr>`).join("");
+  $("in-table").innerHTML = table(rows.filter((r) => r.input));
+  $("out-table").innerHTML = table(rows.filter((r) => !r.input));
   $("protocol").textContent = protocolText(req, out);
-  $("protocol").hidden = false;
   for (const id of ["copy-protocol", "download-json", "share"]) $(id).disabled = false;
 }
 
@@ -290,7 +324,7 @@ function minBase(req) {
 
 async function drawCurve(req, out) {
   const effect = out.effect_size;
-  const conv = CONVENTIONS[currentTest().effect_size];
+  const conv = CONVENTIONS[testOf(req).effect_size];
   const effects = [effect, ...conv.filter((c) => Math.abs(c - effect) > 1e-9)].slice(0, 3).sort((a, b) => a - b);
   const base = out.sizes.n1 ?? out.sizes.n;
   const lo = minBase(req);
@@ -438,6 +472,110 @@ function renderDistribution(doc) {
     `<span>β = ${out.beta.toFixed(4)} · güç = ${out.power.toFixed(4)}</span>`;
 }
 
+// ---------- report ----------
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+// Light theme and chart styles for the standalone report (it must not depend on style.css).
+const REPORT_CSS = `
+:root { --ink:#1b2230; --muted:#5f6b7d; --line:#dfe3ea; --panel:#fff; --accent:#2f5bd3; --accent-soft:#e8eefc;
+  --series-1:#2f5bd3; --series-2:#d9822b; --series-3:#2a9d8f; --target:#b42318; --h0:#e0261b; --h1:#2a3fd6; --crit:#18b33a; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 32px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin-bottom: 18px; }
+h1 { margin: 0; font-size: 22px; } h2 { font-size: 15px; margin: 22px 0 8px; } .muted { color: var(--muted); }
+.meta { text-align: right; font-size: 12px; color: var(--muted); }
+.summary { font-size: 15px; background: var(--accent-soft); border-radius: 10px; padding: 12px 16px; margin: 0 0 12px; }
+.metrics { display: flex; gap: 12px; flex-wrap: wrap; }
+.metric { border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; min-width: 150px; }
+.metric .value { font-size: 22px; font-weight: 650; } .metric .label { font-size: 12px; color: var(--muted); }
+.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+td { padding: 5px 0; border-top: 1px solid var(--line); vertical-align: top; } td:last-child { text-align: right; font-family: ui-monospace, Consolas, monospace; }
+table.text td:first-child { width: 42%; color: var(--muted); } table.text td:last-child { text-align: left; font-family: inherit; padding-left: 10px; }
+.charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+figure { margin: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; break-inside: avoid; }
+figcaption { font-weight: 600; margin-bottom: 6px; } svg { width: 100%; height: auto; display: block; }
+.axis { stroke: var(--line); } .tick { fill: var(--muted); font-size: 11px; } .grid { stroke: var(--line); stroke-dasharray: 2 4; }
+.target { stroke: var(--target); stroke-dasharray: 5 4; } .marker { fill: #fff; stroke-width: 2.5; }
+.h0 { stroke: var(--h0); fill: none; stroke-width: 2.2; } .h1 { stroke: var(--h1); fill: none; stroke-width: 2.2; stroke-dasharray: 7 5; }
+.alpha-area { fill: var(--h0); opacity: .18; } .beta-area { fill: var(--h1); opacity: .2; } .crit { stroke: var(--crit); stroke-width: 2; }
+.label-h0 { fill: var(--h0); font-size: 18px; font-style: italic; } .label-h1 { fill: var(--h1); font-size: 18px; font-style: italic; }
+.title { fill: var(--ink); font-size: 13px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+pre { white-space: pre-wrap; font-size: 12px; background: #f6f8fa; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+footer { margin-top: 24px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+@media (max-width: 760px) { .cols, .charts { grid-template-columns: 1fr; } main { padding: 16px; } }
+@media print { @page { size: A4; margin: 14mm; } main { padding: 0; max-width: none; } h2 { break-after: avoid; } }
+`;
+
+function reportHtml() {
+  const req = state.lastRequest, doc = state.last, out = doc.output, test = testOf(req);
+  const rows = outputRows(req, out);
+  const kv = (list, cls = "") => `<table class="${cls}">${list.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table>`;
+  const settings = [
+    ["Test", test.title],
+    ["Analiz türü", $("analysis").querySelector(`option[value="${req.analysis}"]`).textContent],
+  ];
+  if (req.options.tails) settings.push([OPTION_LABEL.tails, req.options.tails === 2 ? "İki yönlü" : "Tek yönlü"]);
+  for (const k of ["ratio", "groups", "predictors", "tested"]) {
+    if (req.options[k] !== undefined) settings.push([OPTION_LABEL[k], req.options[k]]);
+  }
+  settings.push(["Hesaplama motoru", $("engine").value === "api" ? "Sunucu (FastAPI)" : "Tarayıcı (Pyodide)"]);
+  const now = new Date();
+  // Chart markup and legends are generated by this page from numbers and fixed labels.
+  return `<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noncentra raporu – ${esc(test.title)}</title><style>${REPORT_CSS}</style></head><body><main>
+<header><div><h1>Güç analizi raporu</h1><div class="muted">${esc(test.title)} · ${esc(ANALYSIS_NAME[req.analysis])}</div></div>
+<div class="meta">Noncentra<br>${esc(now.toLocaleString("tr-TR"))}</div></header>
+<p class="summary">${esc(summaryText(req, out))}</p>
+<div class="metrics">${headline(req, out)}</div>
+<div class="cols">
+  <section><h2>Ayarlar</h2>${kv(settings, "text")}</section>
+  <section><h2>Girdiler</h2>${kv(rows.filter((r) => r.input).map((r) => [r.label, r.value]))}</section>
+  <section><h2>Sonuçlar</h2>${kv(rows.filter((r) => !r.input).map((r) => [r.label, r.value]))}</section>
+</div>
+<h2>Grafikler</h2>
+<div class="charts">
+  <figure><figcaption>Merkezi ve merkezi olmayan dağılımlar</figcaption>${$("dist").innerHTML}<div class="legend">${$("dist-legend").innerHTML}</div></figure>
+  <figure><figcaption>Güç eğrisi</figcaption>${$("chart").innerHTML}<div class="legend">${$("legend").innerHTML}</div></figure>
+</div>
+<h2>Protokol</h2><pre>${esc(protocolText(req, out))}</pre>
+<footer>Noncentra ile hesaplandı. Formüller yayınlanmış kaynaklardan (Faul vd. 2007, 2009; Cohen 1988);
+sonuçlar G*Power 3.1.9.7 çıktılarıyla doğrulandı. Paylaşım bağlantısı: ${esc(location.href)}</footer>
+</main></body></html>`;
+}
+
+function reportFileName() {
+  const req = state.lastRequest;
+  const d = new Date(), p = (n) => String(n).padStart(2, "0");
+  const stamp = `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
+  return `noncentra-rapor-${req.test}-${req.analysis}-${stamp}.html`;
+}
+
+function downloadReport() {
+  const blob = new Blob([reportHtml()], { type: "text/html;charset=utf-8" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: reportFileName() });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// Print the report from a hidden frame; the browser's print dialog offers "Save as PDF".
+function printReport() {
+  const frame = Object.assign(document.createElement("iframe"), { title: "rapor" });
+  frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0";
+  frame.srcdoc = reportHtml();
+  frame.onload = () => {
+    frame.contentWindow.focus();
+    frame.contentWindow.print();
+    setTimeout(() => frame.remove(), 60_000);
+  };
+  document.body.append(frame);
+}
+
 // ---------- URL state ----------
 
 function readHash() {
@@ -488,7 +626,10 @@ async function calculate(ev) {
     state.lastRequest = req;
     writeHash(req);
     showResult(req, doc);
+    for (const id of ["download-report", "print-report"]) $(id).disabled = true;
     await Promise.all([drawDistribution(req), drawCurve(req, doc.output)]);
+    // The report embeds both charts, so it becomes available once they are drawn.
+    for (const id of ["download-report", "print-report"]) $(id).disabled = false;
   } catch (err) {
     showError(err.message);
   } finally {
@@ -520,6 +661,8 @@ async function main() {
     a.click();
     URL.revokeObjectURL(a.href);
   };
+  $("download-report").onclick = downloadReport;
+  $("print-report").onclick = printReport;
   $("share").onclick = async (e) => {
     await navigator.clipboard.writeText(location.href);
     flash(e.target, "Bağlantı kopyalandı");
