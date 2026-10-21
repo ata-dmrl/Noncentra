@@ -1,7 +1,7 @@
 """Shared plumbing for test models.
 
 A model maps (effect size, sample sizes) to a noncentrality parameter and degrees of
-freedom, and names the distribution that turns those into power. gpower2.core.solver
+freedom, and names the distribution that turns those into power. noncentra.core.solver
 does the rest, so adding a test means writing `noncentrality` and `sizes_from_n`.
 """
 import math

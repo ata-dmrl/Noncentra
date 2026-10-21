@@ -1,6 +1,6 @@
 # Web arayüzü ve HTTP API
 
-Üç ön yüz aynı Python fonksiyonlarını kullanır (`gpower2/api.py`: `analyze`, `power_curve`). Bu yüzden CLI, MCP, HTTP ve tarayıcı aynı sonucu ve aynı hata kodlarını verir.
+Üç ön yüz aynı Python fonksiyonlarını kullanır (`noncentra/api.py`: `analyze`, `power_curve`). Bu yüzden CLI, MCP, HTTP ve tarayıcı aynı sonucu ve aynı hata kodlarını verir.
 
 ## Çalıştırma
 
@@ -9,19 +9,19 @@ python web/build_bundle.py
 ```
 
 ```bash
-python -m uvicorn gpower2.http_api:app --port 8000
+python -m uvicorn noncentra.http_api:app --port 8000
 ```
 
 - Arayüz: http://localhost:8000/ (→ `/web/`). API belgeleri (OpenAPI): http://localhost:8000/docs
 - Sunucu olmadan, yalnızca tarayıcıda çalıştırmak için `web/` klasörünü herhangi bir statik sunucuyla yayınlamak yeterli (ör. `python -m http.server 8001 --directory web`). Sayfa API'yi bulamazsa otomatik olarak Pyodide'e geçer.
-- `gpower2/` içindeki kod değişince `web/build_bundle.py` yeniden çalıştırılmalı. Paket ~10 KB; CLI, MCP, HTTP ve referans verisi pakete dahil edilmez.
+- `noncentra/` içindeki kod değişince `web/build_bundle.py` yeniden çalıştırılmalı. Paket ~10 KB; CLI, MCP, HTTP ve referans verisi pakete dahil edilmez.
 
 ## HTTP API
 
 | Yöntem | Yol | Gövde / yanıt |
 |---|---|---|
 | GET | `/api/health` | `{status, version, contract_version}` |
-| GET | `/api/tests` | Test kataloğu (`gpower2 tests --json` ile aynı) |
+| GET | `/api/tests` | Test kataloğu (`noncentra tests --json` ile aynı) |
 | POST | `/api/analyze` | `request.schema.json` → `result.schema.json` |
 | POST | `/api/distribution` | `analyze` ile aynı gövde → merkezi/merkezi olmayan yoğunluklar, kritik değer(ler), α ve β bölgeleri, `result` |
 | POST | `/api/curve` | `{test, options, effect_sizes[], alpha, n_from, n_to, points≤200}` → güç eğrisi serileri |

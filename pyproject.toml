@@ -1,5 +1,5 @@
 [project]
-name = "gpower2"
+name = "noncentra"
 version = "0.1.0"
 description = "Clean-room statistical power analysis, validated against G*Power outputs"
 requires-python = ">=3.11"
@@ -11,14 +11,14 @@ mcp = ["mcp"]
 test = ["pytest", "jsonschema", "statsmodels"]
 
 [project.scripts]
-gpower2 = "gpower2.cli:main"
-gpower2-mcp = "gpower2.mcp_server:main"
+noncentra = "noncentra.cli:main"
+noncentra-mcp = "noncentra.mcp_server:main"
 
 [tool.setuptools.packages.find]
-include = ["gpower2*"]
+include = ["noncentra*"]
 
 [tool.setuptools.package-data]
-gpower2 = ["schemas/*.json", "reference/*.csv"]
+noncentra = ["schemas/*.json", "reference/*.csv"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "gpower2/request/1.0",
+  "$id": "noncentra/request/1.0",
   "title": "Power analysis request",
   "type": "object",
   "required": ["test", "analysis"],

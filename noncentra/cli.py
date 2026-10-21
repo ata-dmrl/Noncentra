@@ -35,14 +35,14 @@ def _sizes(values):
 
 
 def build_parser():
-    p = _Parser(prog="gpower2", description="Clean-room statistical power analysis.")
-    p.add_argument("--version", action="version", version=f"gpower2 {__version__}")
+    p = _Parser(prog="noncentra", description="Clean-room statistical power analysis.")
+    p.add_argument("--version", action="version", version=f"noncentra {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
 
     sub.add_parser("tests", help="list available tests").add_argument("--json", action="store_true")
 
     a = sub.add_parser("run", help="run one power analysis")
-    a.add_argument("test", help="test name, see `gpower2 tests`")
+    a.add_argument("test", help="test name, see `noncentra tests`")
     a.add_argument("analysis", choices=ANALYSES)
     a.add_argument("--effect", "-d", type=float, dest="effect_size")
     a.add_argument("--alpha", type=float)

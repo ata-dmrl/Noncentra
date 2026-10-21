@@ -1,7 +1,7 @@
-"""Golden values: every row in gpower2/reference/*.csv must reproduce."""
+"""Golden values: every row in noncentra/reference/*.csv must reproduce."""
 import pytest
 
-from gpower2.difftest import check_reference_row, load_reference
+from noncentra.difftest import check_reference_row, load_reference
 
 ROWS = load_reference()
 

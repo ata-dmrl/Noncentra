@@ -10,8 +10,8 @@ pytest.importorskip("httpx")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from gpower2.api import analyze  # noqa: E402
-from gpower2.http_api import app  # noqa: E402
+from noncentra.api import analyze  # noqa: E402
+from noncentra.http_api import app  # noqa: E402
 
 client = TestClient(app)
 REQUEST = {"test": "f.anova_oneway", "analysis": "a_priori", "options": {"groups": 3},
@@ -19,7 +19,7 @@ REQUEST = {"test": "f.anova_oneway", "analysis": "a_priori", "options": {"groups
 
 
 def schema(name):
-    return json.loads(resources.files("gpower2.schemas").joinpath(name).read_text("utf-8"))
+    return json.loads(resources.files("noncentra.schemas").joinpath(name).read_text("utf-8"))
 
 
 def test_health_and_tests():
@@ -107,7 +107,7 @@ def test_web_files_revalidate():
 
 
 def test_bridge_matches_http():
-    from gpower2.web_bridge import call
+    from noncentra.web_bridge import call
 
     body = {"test": "t.paired", "analysis": "a_priori", "params": {"effect_size": 0.5, "alpha": 0.05, "power": 0.8}}
     assert json.loads(call("distribution", json.dumps(body))) == client.post("/api/distribution", json=body).json()

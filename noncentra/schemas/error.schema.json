@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "gpower2/error/1.0",
+  "$id": "noncentra/error/1.0",
   "title": "Error",
   "type": "object",
   "required": ["contract_version", "error"],

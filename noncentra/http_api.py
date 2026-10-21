@@ -1,6 +1,6 @@
 """HTTP API (FastAPI) over the same `analyze` entry point as the CLI and MCP server.
 
-Run:  python -m uvicorn gpower2.http_api:app --port 8000
+Run:  python -m uvicorn noncentra.http_api:app --port 8000
 It also serves the web UI from ../web at / when that folder exists, so the page can
 call the API instead of loading Pyodide.
 """
@@ -20,7 +20,7 @@ from .core.solver import AnalysisError, ConvergenceError
 # Same meaning as the CLI exit codes (docs/cli-contract.md), as HTTP statuses.
 STATUS = {"invalid_input": 400, "no_solution": 422, "no_convergence": 500}
 
-app = FastAPI(title="gpower2", version=__version__,
+app = FastAPI(title="Noncentra", version=__version__,
               description="Clean-room statistical power analysis, validated against G*Power 3.1.9.7.")
 
 
@@ -75,11 +75,11 @@ def distribution_endpoint(request: dict = Body(..., examples=[{
 def schema(name: str):
     if name not in ("request", "result", "error"):
         raise HTTPException(404, "unknown schema")
-    return json.loads(resources.files("gpower2.schemas").joinpath(f"{name}.schema.json").read_text("utf-8"))
+    return json.loads(resources.files("noncentra.schemas").joinpath(f"{name}.schema.json").read_text("utf-8"))
 
 
 class _RevalidatingStatic(StaticFiles):
-    # The UI and gpower2.zip change together; make browsers revalidate (ETag) every load
+    # The UI and noncentra.zip change together; make browsers revalidate (ETag) every load
     # instead of mixing a cached app.js with a new index.html.
     async def get_response(self, path, scope):
         response = await super().get_response(path, scope)

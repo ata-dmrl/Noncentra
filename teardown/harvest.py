@@ -18,7 +18,7 @@ ID_FAMILY, ID_TEST, ID_ANALYSIS, ID_CALCULATE = 1000, 1001, 1002, 1009
 ANALYSES = {"a_priori": "A priori", "post_hoc": "Post hoc", "sensitivity": "Sensitivity",
             "criterion": "Criterion", "compromise": "Compromise"}
 
-# gpower2 test -> how G*Power names it and labels its fields.
+# noncentra test -> how G*Power names it and labels its fields.
 SPECS = {
     "t.two_sample": {"family": "t tests", "title": "Means: Difference between two independent means (two groups)",
                      "effect": "Effect size d", "critical": "Critical t"},

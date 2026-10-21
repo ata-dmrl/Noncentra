@@ -1,7 +1,7 @@
 """Single entry point shared by the CLI, the MCP server and the HTTP API.
 
 `analyze(request)` takes and returns plain dicts that follow the JSON schemas in
-gpower2/schemas/. Keeping one function means the three front ends cannot drift.
+noncentra/schemas/. Keeping one function means the three front ends cannot drift.
 """
 from . import CONTRACT_VERSION
 from .catalog import get_test

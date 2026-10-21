@@ -1,10 +1,10 @@
-# Kapsam matrisi: G*Power 3.1.9.7 → gpower2
+# Kapsam matrisi: G*Power 3.1.9.7 → Noncentra
 
 Kaynak: `GPowerNT.exe` ana menüsü (kaynak 128), `teardown/catalog_extract.py` ile çıkarıldı.
 **6 / 49** test uygulandı.
 
 
-| Aile | G*Power testi | gpower2 | G*Power ile doğrulandı |
+| Aile | G*Power testi | Noncentra | G*Power ile doğrulandı |
 |---|---|---|---|
 | Correlation and regression | Correlation: Bivariate normal model | – | – |
 | Correlation and regression | Correlation: Point biserial model | – | – |

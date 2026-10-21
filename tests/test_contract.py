@@ -12,11 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def schema(name):
-    return json.loads(resources.files("gpower2.schemas").joinpath(name).read_text("utf-8"))
+    return json.loads(resources.files("noncentra.schemas").joinpath(name).read_text("utf-8"))
 
 
 def cli(*args, stdin=None):
-    proc = subprocess.run([sys.executable, "-m", "gpower2", *args], cwd=ROOT, input=stdin,
+    proc = subprocess.run([sys.executable, "-m", "noncentra", *args], cwd=ROOT, input=stdin,
                           capture_output=True, text=True)
     return proc.returncode, proc.stdout, proc.stderr
 

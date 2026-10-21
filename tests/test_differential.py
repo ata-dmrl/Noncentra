@@ -3,7 +3,7 @@ import pytest
 
 pytest.importorskip("statsmodels")
 
-from gpower2.difftest import check_statsmodels  # noqa: E402
+from noncentra.difftest import check_statsmodels  # noqa: E402
 
 RESULTS = check_statsmodels()
 

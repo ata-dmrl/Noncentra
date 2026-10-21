@@ -2,13 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "gpower2-api",
+      "name": "noncentra-api",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "uvicorn", "gpower2.http_api:app", "--port", "8000"],
+      "runtimeArgs": ["-m", "uvicorn", "noncentra.http_api:app", "--port", "8000"],
       "port": 8000
     },
     {
-      "name": "gpower2-static",
+      "name": "noncentra-static",
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8001", "--directory", "web"],
       "port": 8001

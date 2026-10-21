@@ -1,6 +1,6 @@
 """Differential testing: our solver vs G*Power reference values vs statsmodels.
 
-Reference rows live in gpower2/reference/*.csv. The `source` column says where a
+Reference rows live in noncentra/reference/*.csv. The `source` column says where a
 row came from; rows marked *-unverified are recalled from the literature and get
 replaced by harvested G*Power output (teardown/harvest) once that runs.
 """
@@ -27,7 +27,7 @@ def _num(value):
 
 def load_reference():
     rows = []
-    for entry in resources.files("gpower2.reference").iterdir():
+    for entry in resources.files("noncentra.reference").iterdir():
         if entry.name.endswith(".csv"):
             with entry.open(encoding="utf-8") as fh:
                 rows.extend(csv.DictReader(fh))
@@ -70,7 +70,7 @@ def check_reference_row(row):
                 "known_divergence": True,
                 "gpower_misses_target": row["analysis"] == "a_priori"
                 and float(row["exp_power"]) < float(row["power"]),
-                "detail": divergence if sound else f"{divergence}; gpower2 misses target power",
+                "detail": divergence if sound else f"{divergence}; noncentra misses target power",
                 "ours": out}
     return {"id": row["id"], "kind": "reference", "source": row["source"],
             "ok": not problems, "detail": "; ".join(problems), "ours": out}
@@ -157,7 +157,7 @@ def write_report(path, results, summary):
         for r in sorted(results, key=lambda r: r["ok"])
     )
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    doc = f"""<!doctype html><meta charset="utf-8"><title>gpower2 diff</title>
+    doc = f"""<!doctype html><meta charset="utf-8"><title>noncentra diff</title>
 <style>body{{font:14px system-ui;margin:24px}}table{{border-collapse:collapse}}
 td,th{{border:1px solid #ccc;padding:4px 8px}}.bad{{background:#fdd}}</style>
 <h1>Diferansiyel test raporu</h1><p>{stamp} — {summary['checked']} durum,

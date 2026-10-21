@@ -1,4 +1,4 @@
-"""Coverage matrix: G*Power's test menu (from ui_catalog.json) vs what gpower2 implements.
+"""Coverage matrix: G*Power's test menu (from ui_catalog.json) vs what noncentra implements.
 
 usage: python -I teardown/coverage.py teardown/evidence/ui_catalog.json docs/coverage.md
 """
@@ -7,7 +7,7 @@ import sys
 
 FAMILIES = ("Correlation and regression", "Means", "Proportions", "Variances", "Generic")
 
-# G*Power menu entry -> (gpower2 test name, verified against G*Power output?)
+# G*Power menu entry -> (noncentra test name, verified against G*Power output?)
 IMPLEMENTED = {
     ("Means", "One group: Difference from constant"): ("t.one_sample", True),
     ("Means", "Two dependent groups (matched pairs)"): ("t.paired", True),
@@ -35,9 +35,9 @@ def menu_tests(catalog):
 def main(catalog_path, out_path):
     catalog = json.load(open(catalog_path, encoding="utf-8"))
     tests = menu_tests(catalog)
-    lines = ["# Kapsam matrisi: G*Power 3.1.9.7 → gpower2", "",
+    lines = ["# Kapsam matrisi: G*Power 3.1.9.7 → Noncentra", "",
              "Kaynak: `GPowerNT.exe` ana menüsü (kaynak 128), `teardown/catalog_extract.py` ile çıkarıldı.", "",
-             "| Aile | G*Power testi | gpower2 | G*Power ile doğrulandı |", "|---|---|---|---|"]
+             "| Aile | G*Power testi | Noncentra | G*Power ile doğrulandı |", "|---|---|---|---|"]
     done = 0
     for family, name in tests:
         impl = IMPLEMENTED.get((family, name))

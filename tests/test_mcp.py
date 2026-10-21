@@ -6,8 +6,8 @@ import pytest
 
 pytest.importorskip("mcp")
 
-from gpower2 import mcp_server  # noqa: E402
-from gpower2.api import analyze  # noqa: E402
+from noncentra import mcp_server  # noqa: E402
+from noncentra.api import analyze  # noqa: E402
 
 REQUEST = {"test": "t.two_sample", "analysis": "a_priori",
            "params": {"effect_size": 0.5, "alpha": 0.05, "power": 0.8}}

@@ -1,6 +1,6 @@
 """MCP server: exposes the same `analyze` entry point as the CLI to AI clients.
 
-Run with `python -m gpower2.mcp_server` (stdio transport).
+Run with `python -m noncentra.mcp_server` (stdio transport).
 """
 from mcp.server.fastmcp import FastMCP
 
@@ -8,7 +8,7 @@ from .api import analyze, error_payload
 from .catalog import describe_tests
 from .core.solver import AnalysisError
 
-mcp = FastMCP("gpower2")
+mcp = FastMCP("noncentra")
 
 
 @mcp.tool()
@@ -26,7 +26,7 @@ def power_analysis(test: str, analysis: str, params: dict, options: dict | None 
     options: t tests take tails (1 or 2) and ratio (n2/n1, two-sample); f.anova_oneway takes groups;
     f.regression_r2 takes predictors; f.regression_r2_increase takes predictors and tested.
     Effect size is d/dz for t tests, f for ANOVA and f2 (f squared) for regression.
-    Returns the result document from gpower2/schemas/result.schema.json, or an error document.
+    Returns the result document from noncentra/schemas/result.schema.json, or an error document.
     """
     try:
         return analyze({"test": test, "analysis": analysis, "params": params, "options": options or {}})

@@ -9,7 +9,7 @@ teardown/evidence/
 # --- Generated output ---
 reports/
 # Browser bundle; build with: python web/build_bundle.py
-web/gpower2.zip
+web/noncentra.zip
 *.log
 
 # --- Python ---

@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from gpower2.api import analyze
+from noncentra.api import analyze
 
 RNG = np.random.default_rng(20261016)
 N_CASES = 60

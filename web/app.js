@@ -1,7 +1,7 @@
 "use strict";
-// gpower2 web UI. Two interchangeable engines return the same JSON documents:
-//   pyodide: the gpower2 package running in the browser (web/gpower2.zip)
-//   api:     the FastAPI server (gpower2/http_api.py), when this page is served by it
+// Noncentra web UI. Two interchangeable engines return the same JSON documents:
+//   pyodide: the noncentra package running in the browser (web/noncentra.zip)
+//   api:     the FastAPI server (noncentra/http_api.py), when this page is served by it
 
 const PYODIDE_PACKAGES = ["numpy", "scipy"];
 
@@ -55,12 +55,12 @@ class PyodideEngine {
     this.py = await loadPyodide();
     onStatus("scipy yükleniyor…");
     await this.py.loadPackage(PYODIDE_PACKAGES);
-    onStatus("gpower2 yükleniyor…");
+    onStatus("Noncentra yükleniyor…");
     const build = document.querySelector('meta[name="build"]')?.content ?? "dev";
-    const zip = await fetch(`gpower2.zip?v=${encodeURIComponent(build)}`);
-    if (!zip.ok) throw new Error("gpower2.zip bulunamadı; önce: python web/build_bundle.py");
+    const zip = await fetch(`noncentra.zip?v=${encodeURIComponent(build)}`);
+    if (!zip.ok) throw new Error("noncentra.zip bulunamadı; önce: python web/build_bundle.py");
     this.py.unpackArchive(await zip.arrayBuffer(), "zip");
-    this.bridge = this.py.pyimport("gpower2.web_bridge");
+    this.bridge = this.py.pyimport("noncentra.web_bridge");
   }
   async call(name, req) {
     return JSON.parse(this.bridge.call(name, JSON.stringify(req || {})));
@@ -256,7 +256,7 @@ function protocolText(req, out) {
   const rows = outputRows(req, out);
   const line = (r) => `\t${r.label.padEnd(34)}= ${r.value}`;
   return [
-    `gpower2 — ${test.title}`,
+    `Noncentra — ${test.title}`,
     `Analiz:\t${ANALYSIS_NAME[req.analysis]}`,
     "Girdi:", ...rows.filter((r) => r.input).map(line),
     "Çıktı:", ...rows.filter((r) => !r.input).map(line),
@@ -515,7 +515,7 @@ async function main() {
   $("download-json").onclick = () => {
     const blob = new Blob([JSON.stringify(state.last, null, 2)], { type: "application/json" });
     const a = Object.assign(document.createElement("a"), {
-      href: URL.createObjectURL(blob), download: `gpower2-${state.last.test}-${state.last.analysis}.json`,
+      href: URL.createObjectURL(blob), download: `noncentra-${state.last.test}-${state.last.analysis}.json`,
     });
     a.click();
     URL.revokeObjectURL(a.href);

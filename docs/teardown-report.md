@@ -35,16 +35,16 @@ Kendi yazdığı bir dağılım kütüphanesi var; hata mesajlarından çıkan f
 - `** On entry to %6s, parameter number %2i had an illegal value` → LAPACK `xerbla` mesajı. MANOVA ve tekrarlı ölçüm matris işlemleri için gömülü LAPACK/BLAS kodu var.
 - MANOVA için iki algoritma ailesi açıkça adlandırılmış: **Muller-Peterson** ve **O'Brien-Shieh** (Wilks U, Pillai V, Hotelling-Lawley T1/T2). Yaklaşık değerler için Rao (1951) F dönüşümü kullanılıyor.
 - Seçenek diyaloglarında: süreklilik düzeltmesi, arcsin dönüşümü, iki yönlü testte alfa dengeleme, "N < eşik ise exact, değilse büyük örneklem yaklaşımı (Fisher z / z-test)", Wilcoxon testleri için ARE (Asimptotik Göreli Etkinlik).
-- Analiz türü metinleri gpower2 ile bire bir örtüşüyor: Post hoc, A priori, Compromise (β/α oranı), Criterion, Sensitivity.
+- Analiz türü metinleri Noncentra ile bire bir örtüşüyor: Post hoc, A priori, Compromise (β/α oranı), Criterion, Sensitivity.
 
 Hesaplama kodunun kendisi okunmadı. Ghidra/IDA kurulu olmadığı için REA disassembly sağlayıcısı devre dışı. Algoritma ayrıntıları bilinçli olarak kopyalanmıyor; yayınlanmış kaynaklardan yazılıyor.
 
 ## Test kataloğu
 
-Ana menüde 5 aile ve **49 test** var (+ hesap makinesi). Tam liste ve gpower2 karşılıkları [coverage.md](coverage.md) dosyasında.
+Ana menüde 5 aile ve **49 test** var (+ hesap makinesi). Tam liste ve Noncentra karşılıkları [coverage.md](coverage.md) dosyasında.
 Şu an 6 / 49 test uygulanmış durumda (3 t-testi, tek yönlü ANOVA, iki regresyon R² testi); altısı da canlı G*Power çıktısıyla doğrulandı (aşağıya bakın).
 
-## Zayıf noktalar → gpower2 geliştirme listesi
+## Zayıf noktalar → Noncentra geliştirme listesi
 
 1. **Otomasyon yok:** komut satırı, betik ya da API yok; her hesap elle yapılıyor. → CLI sözleşmesi, MCP ve REST (yapıldı / planda).
 2. **Toplu hesaplama yok:** X-Y grafik dışında parametre ızgarası taranamıyor. → `grid` komutu, CSV/JSON çıktı.
@@ -57,21 +57,21 @@ Ana menüde 5 aile ve **49 test** var (+ hesap makinesi). Tam liste ve gpower2 k
 
 - **Yöntem:** `teardown/harvest.py` + `teardown/win32ui.py`. ctypes üzerinden Win32 mesajları kullanılıyor (`WM_SETTEXT`, `BM_CLICK`, `CB_SETCURSEL`); ek paket yok. Etiket ile değer kutusu ekran satırına göre eşleniyor, bu yüzden G*Power'ın test değişince yeniden atadığı kontrol ID'lerinden bağımsız.
   REA'nın UI araçları macOS (AX) içindir; Windows'ta kullanılamadı.
-- **Kapsam:** 3 t-testi × 5 analiz türü, toplam 183 durum (`gpower2/reference/t_tests_harvested.csv`, `t_tests_ratio_harvested.csv`). Her satırda G*Power'ın geri yansıttığı girdiler kontrol edildi; 0 hata.
+- **Kapsam:** 3 t-testi × 5 analiz türü, toplam 183 durum (`noncentra/reference/t_tests_harvested.csv`, `t_tests_ratio_harvested.csv`). Her satırda G*Power'ın geri yansıttığı girdiler kontrol edildi; 0 hata.
 - **Sonuç:** 160 durum G*Power ile **7. ondalığa kadar** aynı (G*Power'ın gösterim hassasiyeti). Bu durumlar: güç, kritik t, sensitivity'de etki büyüklüğü, criterion/compromise'da α ve a priori n.
   Literatürden alınan 4 satır da bu sırada doğrulandı.
 
 ### Bulgu: eşit olmayan grup oranında a priori n
 
 - 23 durumda (hepsi `ratio ≠ 1`, a priori) grup büyüklükleri ±1 farklı.
-- gpower2 kesirli çözüm n1*'ı bulup her grubu ayrı yukarı yuvarlıyor: n1 = ⌈n1*⌉, n2 = ⌈n1*·oran⌉. Eşit oranda G*Power ile 27/27 aynı.
+- Noncentra kesirli çözüm n1*'ı bulup her grubu ayrı yukarı yuvarlıyor: n1 = ⌈n1*⌉, n2 = ⌈n1*·oran⌉. Eşit oranda G*Power ile 27/27 aynı.
 - G*Power'ın kuralı tek bir yuvarlama kuralıyla açıklanamıyor. Denenen kurallar: N veya n1 üzerinden tam sayı arama × floor/ceil/round. En iyisi 24/63 tuttu. Ayrıca 9 durum tek bir kesirli N* ile bile tutarlı değil; demek ki sonuç sonradan ayrıca düzeltiliyor. Kesin kural için disassembly (Ghidra/IDA) gerekiyor.
-- **G*Power'da hata:** Bu 23 durumun 5'inde G*Power'ın önerdiği n, istenen gücü sağlamıyor (ör. oran 2.5, d=0.5, hedef .90 → 59+149, gerçek güç 0.8989). gpower2'nin sonucu 23 durumun hepsinde hedefe ulaşıyor.
-- Bu satırlar CSV'de `known_divergence` sütunuyla işaretli. Diferansiyel test bunları "SAPMA" olarak raporluyor ve gpower2'nin hedefe ulaştığını ayrıca doğruluyor.
+- **G*Power'da hata:** Bu 23 durumun 5'inde G*Power'ın önerdiği n, istenen gücü sağlamıyor (ör. oran 2.5, d=0.5, hedef .90 → 59+149, gerçek güç 0.8989). Noncentra'nın sonucu 23 durumun hepsinde hedefe ulaşıyor.
+- Bu satırlar CSV'de `known_divergence` sütunuyla işaretli. Diferansiyel test bunları "SAPMA" olarak raporluyor ve Noncentra'nın hedefe ulaştığını ayrıca doğruluyor.
 
 ### Bulgu: scipy / statsmodels
 
-- scipy 1.15 `nct.cdf` bazı uç kuyruklarda NaN döndürüyor; gpower2 yansıma özdeşliğiyle bunu aşıyor.
+- scipy 1.15 `nct.cdf` bazı uç kuyruklarda NaN döndürüyor; Noncentra yansıma özdeşliğiyle bunu aşıyor.
 - statsmodels aynı hata yüzünden 2 grid durumunda NaN döndürüyor.
 
 ## Aşama 2b: F testleri (tek yönlü ANOVA, çoklu regresyon R²)
@@ -81,10 +81,10 @@ Ana menüde 5 aile ve **49 test** var (+ hesap makinesi). Tam liste ve gpower2 k
   - `f.regression_r2`: λ = f²·N, sd = (p, N−p−1).
   - `f.regression_r2_increase`: λ = f²·N, sd = (q, N−p−1).
 - **Toplama:** `harvest.py` artık test ailesinden bağımsız çalışıyor (`SPECS` tablosu). Her satırda girdinin geri yansıdığı kontrol ediliyor. G*Power'ın modal uyarıları okunup kapatılıyor ve metinleri `raw` sütununa yazılıyor.
-- **Sonuç:** 198 durumun (`gpower2/reference/f_tests_harvested.csv`) tamamı G*Power ile 7. ondalığa kadar aynı; sapma yok. Ayrıca statsmodels ile 108 F karşılaştırması da uyuşuyor.
-- **G*Power kuralı (gözlem):** ANOVA a priori N, grup sayısının katına yukarı yuvarlanıyor (f=.25, k=3 → 159, kesirli çözüm 158'i veriyordu). gpower2 bunu `AnovaOneWay.round_sizes` ile uyguluyor.
+- **Sonuç:** 198 durumun (`noncentra/reference/f_tests_harvested.csv`) tamamı G*Power ile 7. ondalığa kadar aynı; sapma yok. Ayrıca statsmodels ile 108 F karşılaştırması da uyuşuyor.
+- **G*Power kuralı (gözlem):** ANOVA a priori N, grup sayısının katına yukarı yuvarlanıyor (f=.25, k=3 → 159, kesirli çözüm 158'i veriyordu). Noncentra bunu `AnovaOneWay.round_sizes` ile uyguluyor.
 - **G*Power uyarısı:** N grup sayısının katı değilse post hoc, sensitivity ve compromise analizlerinde "analysis was based on the average group size" uyarısı çıkıyor; hesap yine λ = f²·N ile yapılıyor. Aynı N için criterion analizinde uyarı çıkmıyor (tutarsızlık).
-- **scipy hatası:** `ncf.sf`, merkezdışılık tam 0 iken negatif değer döndürüyor (ör. d1=1, d2=2, x=1 → −0.577). gpower2 bu durumda merkezi F'ye geçiyor (`f_power`).
+- **scipy hatası:** `ncf.sf`, merkezdışılık tam 0 iken negatif değer döndürüyor (ör. d1=1, d2=2, x=1 → −0.577). Noncentra bu durumda merkezi F'ye geçiyor (`f_power`).
 - **statsmodels tuzağı:** `FTestPower` sınıfının sd argümanları ters; doğrusu `FTestPowerF2`.
 
 ## Sonraki adımlar

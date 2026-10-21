@@ -1,6 +1,6 @@
-# gpower2 CLI sözleşmesi (contract_version 1.0)
+# Noncentra CLI sözleşmesi (contract_version 1.0)
 
-Bu belge ve `gpower2/schemas/*.json` sözleşmenin kendisidir. `tests/test_contract.py`
+Bu belge ve `noncentra/schemas/*.json` sözleşmenin kendisidir. `tests/test_contract.py`
 CLI'yi alt süreç olarak çalıştırır ve her çıktıyı bu şemalara göre doğrular.
 Geriye uyumsuz bir değişiklik `contract_version`'ı yükseltmeden yapılamaz.
 
@@ -8,10 +8,10 @@ Geriye uyumsuz bir değişiklik `contract_version`'ı yükseltmeden yapılamaz.
 
 | Komut | Ne yapar |
 |---|---|
-| `gpower2 tests [--json]` | Bilinen testleri listeler |
-| `gpower2 run <test> <analysis> [parametreler] [--json]` | Tek analiz |
-| `gpower2 request <dosya veya -> ` | `request.schema.json` biçiminde JSON isteği çalıştırır, JSON döner |
-| `gpower2 diff [--report yol.html] [--json]` | Referans verisi + statsmodels ile diferansiyel test |
+| `noncentra tests [--json]` | Bilinen testleri listeler |
+| `noncentra run <test> <analysis> [parametreler] [--json]` | Tek analiz |
+| `noncentra request <dosya veya -> ` | `request.schema.json` biçiminde JSON isteği çalıştırır, JSON döner |
+| `noncentra diff [--report yol.html] [--json]` | Referans verisi + statsmodels ile diferansiyel test |
 
 Analiz türleri: `post_hoc`, `a_priori`, `sensitivity`, `criterion`, `compromise`.
 
@@ -39,5 +39,5 @@ F testlerinde `output.df_num` pay serbestlik derecesi, `output.df` payda serbest
 ## Örnek
 
 ```bash
-python -m gpower2 run t.two_sample a_priori -d 0.5 --alpha 0.05 --power 0.8 --json
+python -m noncentra run t.two_sample a_priori -d 0.5 --alpha 0.05 --power 0.8 --json
 ```
