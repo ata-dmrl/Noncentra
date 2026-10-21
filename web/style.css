@@ -148,6 +148,9 @@ button.accent { background: var(--accent); color: var(--accent-ink); border-colo
 .chart .crit { stroke: var(--crit); stroke-width: 2; }
 .chart .label-h0 { fill: var(--h0); font-size: 18px; font-style: italic; }
 .chart .label-h1 { fill: var(--h1); font-size: 18px; font-style: italic; }
+.chart .label-h0, .chart .label-h1 { paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.chart .lead-h0 { stroke: var(--h0); stroke-width: 1.4; }
+.chart .lead-h1 { stroke: var(--h1); stroke-width: 1.4; }
 .chart .title { fill: var(--ink); font-size: 13px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }

@@ -436,7 +436,9 @@ function renderDistribution(doc) {
   };
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Merkezi ve merkezi olmayan dağılımlar">
-    <defs><clipPath id="dist-clip"><rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"/></clipPath></defs>`;
+    <defs><clipPath id="dist-clip"><rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"/></clipPath>
+      <marker id="arrow-h0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="var(--h0)"/></marker>
+      <marker id="arrow-h1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="var(--h1)"/></marker></defs>`;
   const yStep = niceStep(yMax, 4);
   for (let v = 0; v <= yMax; v += yStep) {
     svg += `<line class="grid" x1="${L}" x2="${W - R}" y1="${py(v)}" y2="${py(v)}"/>`;
@@ -458,11 +460,31 @@ function renderDistribution(doc) {
   const out = doc.result.output;
   const crit = Math.max(...doc.critical);
   svg += `<text class="title" x="${(L + W - R) / 2}" y="16" text-anchor="middle">critical ${doc.statistic} = ${crit.toFixed(5)}</text>`;
-  // β sits inside the shaded H1 area just left of the critical value, α beyond it under H0.
-  const bx = crit - (xMax - xMin) * 0.05;
-  svg += `<text class="label-h1" x="${px(bx)}" y="${py(valAt(doc.noncentral, bx) * 0.45)}" text-anchor="end">β</text>`;
-  const ax = crit + (xMax - xMin) * 0.06;
-  svg += `<text class="label-h0" x="${px(ax)}" y="${py(Math.max(valAt(doc.central, crit) * 2.5, yMax * 0.12))}">${doc.tails === 2 ? "α/2" : "α"}</text>`;
+  // Label each shaded area: inside it when it is tall enough to hold the text,
+  // otherwise from outside with an arrow pointing into it (as G*Power does for α/2).
+  const range = xMax - xMin;
+  const annotate = (text, kind, series, [a, b]) => {
+    a = Math.max(a, xMin); b = Math.min(b, xMax);
+    if (b <= a) return "";
+    // Areas are tallest where they touch a critical value; start there, pointing inward.
+    const touches = (x) => doc.critical.some((c) => Math.abs(c - x) < 1e-9);
+    const edge = touches(a) && touches(b)
+      ? (valAt(series, a) > valAt(series, b) ? a : b)
+      : (touches(a) ? a : b);
+    const dir = edge === a ? 1 : -1;  // +1: area extends to the right of the critical value
+    const height = (x) => py(0) - py(valAt(series, x));
+    const inside = edge + dir * Math.min(range * 0.07, (b - a) / 2);
+    if (height(inside) >= 34) {
+      return `<text class="label-${kind}" x="${px(inside)}" y="${py(valAt(series, inside) / 2) + 6}" text-anchor="middle">${text}</text>`;
+    }
+    const tx = edge + dir * Math.min(range * 0.025, (b - a) / 2);
+    const ty = py(0) - Math.max(height(tx) / 2, 2);
+    const lx = px(tx) + dir * 38, ly = Math.max(T + 16, ty - 48);
+    return `<line class="lead-${kind}" x1="${lx - dir * 2}" y1="${ly + 5}" x2="${px(tx)}" y2="${ty}" marker-end="url(#arrow-${kind})"/>`
+      + `<text class="label-${kind}" x="${lx}" y="${ly}" text-anchor="${dir > 0 ? "start" : "end"}">${text}</text>`;
+  };
+  svg += annotate("β", "h1", doc.noncentral, doc.beta_region);
+  for (const r of doc.alpha_regions) svg += annotate(doc.tails === 2 ? "α/2" : "α", "h0", doc.central, r);
   $("dist").innerHTML = svg + "</svg>";
 
   $("dist-legend").innerHTML =
@@ -502,6 +524,8 @@ figcaption { font-weight: 600; margin-bottom: 6px; } svg { width: 100%; height: 
 .h0 { stroke: var(--h0); fill: none; stroke-width: 2.2; } .h1 { stroke: var(--h1); fill: none; stroke-width: 2.2; stroke-dasharray: 7 5; }
 .alpha-area { fill: var(--h0); opacity: .18; } .beta-area { fill: var(--h1); opacity: .2; } .crit { stroke: var(--crit); stroke-width: 2; }
 .label-h0 { fill: var(--h0); font-size: 18px; font-style: italic; } .label-h1 { fill: var(--h1); font-size: 18px; font-style: italic; }
+.label-h0, .label-h1 { paint-order: stroke; stroke: #fff; stroke-width: 4px; stroke-linejoin: round; }
+.lead-h0 { stroke: var(--h0); stroke-width: 1.4; } .lead-h1 { stroke: var(--h1); stroke-width: 1.4; }
 .title { fill: var(--ink); font-size: 13px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--muted); margin-top: 6px; }
 .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
