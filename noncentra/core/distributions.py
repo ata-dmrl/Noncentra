@@ -63,15 +63,23 @@ def f_upper(df_num, df_den, ncp, q=0.995):
     return value if math.isfinite(value) else df_den * (df_num + ncp) / (df_num * max(df_den - 2, 1)) * 3
 
 
+def t_crit(tail_prob: float, df: float) -> float:
+    # scipy 1.18's t.isf underflows to -inf for tail probabilities near 1e-300 (df=11).
+    # The true quantile is far beyond any t a test could reach, so treat it as +inf:
+    # the compromise solver probes alpha down to 1e-300 and needs beta = 1 there.
+    crit = float(stats.t.isf(tail_prob, df))
+    return crit if math.isfinite(crit) else math.inf
+
+
 def t_power(ncp: float, df: float, alpha: float, tails: int) -> tuple[float, float, float]:
     """Power, beta and critical value of a t test with noncentrality `ncp`."""
     if tails == 2:
-        crit = float(stats.t.isf(alpha / 2, df))
+        crit = t_crit(alpha / 2, df)
         lower, upper = nct_cdf(-crit, df, ncp), nct_sf(crit, df, ncp)
         power = lower + upper
         beta = max(0.0, 1.0 - lower - upper) if power < 0.5 else nct_cdf(crit, df, ncp) - lower
     elif tails == 1:
-        crit = float(stats.t.isf(alpha, df))
+        crit = t_crit(alpha, df)
         power = nct_sf(crit, df, ncp)
         beta = nct_cdf(crit, df, ncp)
     else:
