@@ -199,12 +199,15 @@ def run(fields: dict) -> tuple[dict, int]:
                           "options": options, "params": params})
         return _output(spec, mode, result["output"]), EXIT_OK
     except InputError as exc:
-        field = exc.field
+        field, message = exc.field, str(exc)
         if field == "effect_size":
             field = spec["effect"]
         elif field in ("n", "n1", "n2"):
             field = next(c for c, eng in spec["sizes"].items() if eng == field)
-        return _fail(str(exc), exc.code, field)
+        if field != exc.field and message.startswith(f"{exc.field} "):
+            # Engine messages name engine keys; show the contract field instead.
+            message = field + message[len(exc.field):]
+        return _fail(message, exc.code, field)
     except ConvergenceError as exc:
         return _fail(str(exc), "NO_SOLUTION", exit_code=EXIT_INTERNAL)
     except AnalysisError as exc:
