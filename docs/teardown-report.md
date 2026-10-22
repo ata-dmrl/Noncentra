@@ -1,5 +1,7 @@
 # G*Power 3.1.9.7 teardown raporu (Aşama 0 + 1)
 
+Kanıt defteri: [EVIDENCE.md](EVIDENCE.md) · Spesifikasyon: [../SPEC.md](../SPEC.md)
+
 Tarih: 2026-10-16. Aşama 1 statik analizdir. Aşama 2'de exe kullanıcı onayıyla çalıştırıldı ve yalnızca girdi/çıktı değerleri okundu.
 Ham kanıtlar: `teardown/evidence/`.
 
