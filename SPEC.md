@@ -229,3 +229,25 @@ tam sayılar (`n_total`, `df`) tam eşleşir; ondalıklar 1e-6 mutlak ya da gör
   arayüzden görünmez.
 - "Determine" penceresi (dz'yi ortalama, SD ve korelasyondan hesaplama) kapsam dışıdır:
   dz = |μx − μy| / √(σx² + σy² − 2ρσxσy) [DOK].
+
+---
+
+## 6. Temiz oda oturumunun bulduğu boşluklar (2026-10-22)
+
+Oturum 2 yalnızca bu belgeyle (sürüm SHA-256 `28ba05bf…bd3`, `cleanroom/SPEC.md`) bütün örnekleri geçti ve SPEC'te olmayan
+889 kâhin vektöründe de G*Power ile aynı sonucu verdi ([cleanroom/REPORT.md](cleanroom/REPORT.md)). Kendisinin "SPEC'te yok"
+diye not ettiği noktalar ve şimdiki karar:
+
+| # | Boşluk | Karar | Kaynak |
+|---|---|---|---|
+| 1 | Aynı aşamada birden çok ihlal | Tanınmayan alanlar verildiği sırayla; eksik/tür/aralık CONTRACT.md §4.2 alan sırasıyla; §2 kuralları tablo sırasıyla | İki uygulama aynı |
+| 2 | `--test` ya da `--mode` eksik | `MISSING_PARAM`, `field` = `test` / `mode` | İki uygulama aynı |
+| 3 | Uygulanmayan test kimliği | `UNSUPPORTED`, `field` = `test` | CONTRACT.md §2.4 |
+| 4 | Değersiz ya da tekrarlanan bayrak | `INVALID_VALUE` | İki uygulama aynı |
+| 5 | Sayı sözdizimi | Ondalık ve e-gösterimi kabul; `inf`, `nan`, `1_000`, virgül ret. Tam sayı alanında `45.0` ret (`INVALID_VALUE`) | İki uygulama aynı |
+| 6 | Sayısal çözüm bulunamazsa (ör. criterion'da α double ile gösterilemeyecek kadar küçük) | `NO_SOLUTION`. Çıkış kodu: ana uygulama 2, temiz oda 1 | ⚠ G*Power'da denenmedi |
+| 7 | **Sensitivity'de güç = α** | **İki uygulama farklı:** ana uygulama `NO_SOLUTION` (çıkış 2), temiz oda dz = 0 (çıkış 0) | ⚠ **Açık soru:** G*Power'da denenmeli; sonuç bu tabloya ve §3'e örnek olarak eklenmeli |
+| 8 | `beta_alpha_ratio` için ek kural | Yalnızca CONTRACT.md'deki > 0 | Kâhinde β/α = 0.25 ve 4 denendi (p051–p054) |
+| 9 | Criterion çıktısında α < 1e-07 | Olduğu gibi döndürülür; 1e-07 sınırı yalnızca girdi için | ⚠ G*Power'da denenmedi |
+| 10 | `--version` alanları | Serbest (takım adı, motor sürümü) | CONTRACT.md §2.2 |
+| 11 | Beklenmeyen iç hata | Ana uygulama `INTERNAL` kodu, çıkış 1; CONTRACT.md tablosunda yok | CONTRACT.md §2.4 yalnızca 1 = iç hata diyor |

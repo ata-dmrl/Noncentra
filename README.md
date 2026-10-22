@@ -20,6 +20,7 @@ yerine sunulmaz; G*Power burada yalnızca kâhin (doğru cevabı bilen referans)
 | statsmodels `TTestPower` vektörleri | **780/780** uyum |
 | CONTRACT.md §9 açık vektörleri | t-paired 5/5; motorun desteklediği diğer 3 aile 15/15; χ² → `UNSUPPORTED` |
 | SPEC.md çalıştırılabilir örnekleri | 52/52 |
+| Temiz oda oturumu (yalnızca SPEC.md ile yazılan ikinci uygulama) | kâhinin tamamında uyum, ana uygulamayla 889/889 aynı |
 | MCP = CLI eşdeğerliği | 25 açık vektör + 5 ek vaka, birebir aynı |
 
 ## Kurulum ve çalıştırma
@@ -96,6 +97,24 @@ yapılır, böylece `45.5` gibi bir N iki yolda da aynı `INVALID_VALUE` hatası
 | `beta` | compromise |
 | `dz` | sensitivity |
 | `error`, `code`, `field` | hata durumunda (kodlar CONTRACT.md §2.4) |
+
+## Temiz oda kanıtı
+
+Ödevin "iki ayrı ajan oturumu" kuralı kayıt altında uygulandı: yeni ve bağlamsız bir ajan oturumu yalnızca SPEC.md ve
+CONTRACT.md ile motoru ve CLI'yi baştan yazdı ([cleanroom/](cleanroom/)). İlk prompt birebir
+[prompts/session2_run_2026-10-22.md](prompts/session2_run_2026-10-22.md)'de, 17 araç çağrısının hepsi
+[cleanroom/SESSION2_AUDIT.md](cleanroom/SESSION2_AUDIT.md)'de (repoya erişen çağrı: 0).
+
+| | Temiz oda uygulaması |
+|---|---|
+| SPEC örnekleri + açık vektörler (kendi testleri) | 60/60 |
+| SPEC'te **olmayan** G*Power vektörleri (ızgara + sınır) | 104/104 |
+| statsmodels vektörleri | 780/780 |
+| Ana uygulamayla aynı girdilerde (889) fark | **0** (ondalıklar 1e-9 içinde) |
+
+Kodu ve binary'yi görmemiş bir oturumun SPEC'ten G*Power'la aynı sonuçları üretmesi, SPEC'in doğruluğunun ve
+yeterliliğinin en doğrudan kanıtı. Oturumun bulduğu 11 SPEC boşluğu SPEC.md §6'da; biri (sensitivity'de güç = α) G*Power'da
+sınanması gereken açık bir soru. Ayrıntı: [cleanroom/REPORT.md](cleanroom/REPORT.md).
 
 ## AI ajanı
 

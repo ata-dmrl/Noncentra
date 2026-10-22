@@ -11,6 +11,7 @@
 | 2 | 2026-10-16 → 21 | ⚠ (ata-dmrl) | ⚠ | Aşama 2: Win32 otomasyonuyla G*Power'dan 183 + 198 vektör toplama (`teardown/harvest.py`); ilk motor + CLI + MCP + web | ⚠ | ⚠ | ⚠ |
 | 3 | 2026-10-21 | ⚠ (Erva Keskin) | ⚠ | Eşleştirilmiş test sınır vektörleri (55 vaka, ekran görüntülü), B1–B6 bulguları, scipy 1.18 düzeltmesi → `docs/t-paired-validation.md` | ⚠ | ⚠ | ⚠ |
 | 4 | 2026-10-22 | Safiye Özkan | Claude (claude.ai, Opus 5.5) | Sözleşme katmanı (`gpower-clone`, tek araçlı MCP), G*Power sınır kurallarının motora eklenmesi, t-paired diferansiyel test ve rapor, teslim belgeleri, AI ajanı ve değerlendirme düzeneği | ⚠ (kullanım ekranından) | ⚠ | aşağıda |
+| 5 | 2026-10-22 | Safiye Özkan (oturum 4'ün başlattığı ayrı alt ajan) | Claude alt ajanı, bağlamsız | **Temiz oda oturumu 2:** yalnızca SPEC.md + CONTRACT.md ile motor + CLI baştan yazıldı (`cleanroom/`) | **~106.800** (ölçüldü) | ⚠ | **2** (ilk tur 59/60; scipy NaN düzeltmesi) |
 
 ## Oturum 4 süreç kaydı
 
