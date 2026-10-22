@@ -66,3 +66,8 @@ class PairedT(OneSampleT):
     name = "t.paired"
     title = "Means: difference between two dependent means (matched pairs)"
     effect_name = "dz"
+
+    # G*Power 3.1.9.7 refuses N < 3 whenever N is an input ("Total sample size is
+    # outside the admissible range (3, 2147483646)", oracle p027-p030, p047), yet its
+    # a priori analysis may return N = 2 (p010, p012-p015). min_n stays 2 for a priori.
+    min_n_given = 3

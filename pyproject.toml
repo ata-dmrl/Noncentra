@@ -7,12 +7,14 @@ dependencies = ["scipy", "numpy"]
 
 [project.optional-dependencies]
 diff = ["statsmodels"]
-mcp = ["mcp"]
+mcp = ["mcp>=1.2,<2"]
 test = ["pytest", "jsonschema", "statsmodels"]
 
 [project.scripts]
 noncentra = "noncentra.cli:main"
 noncentra-mcp = "noncentra.mcp_server:main"
+gpower-clone = "noncentra.contract_cli:main"
+gpower-clone-mcp = "noncentra.mcp_contract:main"
 
 [tool.setuptools.packages.find]
 include = ["noncentra*"]

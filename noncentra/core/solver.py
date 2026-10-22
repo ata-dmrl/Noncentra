@@ -10,9 +10,18 @@ import math
 
 from scipy.optimize import brentq
 
+from .errors import InputError
+
 ANALYSES = ("post_hoc", "a_priori", "sensitivity", "criterion", "compromise")
 
 MAX_N = 10_000_000
+
+# G*Power 3.1.9.7 accepts alpha and power in [1e-07, 1): the message says
+# "(1e-07, 1)" but 1e-07 itself is accepted (oracle/t-paired p041, p024-p026).
+MIN_PROB = 1e-7
+# "In an a priori analysis, the absolute value of the effect size be greater than
+# 0.00001." (oracle/t-paired p022)
+MIN_ABS_EFFECT_A_PRIORI = 1e-5
 
 
 class AnalysisError(Exception):
@@ -25,9 +34,15 @@ class ConvergenceError(AnalysisError):
     code = "no_convergence"
 
 
-def _unit(name, value, low=0.0, high=1.0):
-    if not (low < value < high):
-        raise ValueError(f"{name} must be in ({low}, {high}), got {value}")
+def _unit(name, value):
+    if not (MIN_PROB <= value < 1.0):
+        raise InputError(f"{name} must be in [{MIN_PROB:g}, 1), got {value}", "OUT_OF_RANGE", name)
+
+
+def _power_not_below_alpha(alpha, power):
+    # G*Power: "Power must be greater than or equal to alpha." (p016, p021, p048)
+    if power < alpha:
+        raise InputError("power must be greater than or equal to alpha", "INCONSISTENT", "power")
 
 
 def post_hoc(model, effect, sizes, alpha):
@@ -39,8 +54,10 @@ def post_hoc(model, effect, sizes, alpha):
 def a_priori(model, effect, alpha, power):
     _unit("alpha", alpha)
     _unit("power", power)
-    if effect == 0:
-        raise AnalysisError("effect size 0 never reaches the target power")
+    _power_not_below_alpha(alpha, power)
+    if abs(effect) <= MIN_ABS_EFFECT_A_PRIORI:
+        raise InputError(f"a priori needs |effect size| > {MIN_ABS_EFFECT_A_PRIORI:g}",
+                         "OUT_OF_RANGE", "effect_size")
 
     # Solve for the continuous base size, then round each group up (G*Power's rule).
     def f(n):
@@ -63,6 +80,7 @@ def a_priori(model, effect, alpha, power):
 def sensitivity(model, sizes, alpha, power):
     _unit("alpha", alpha)
     _unit("power", power)
+    _power_not_below_alpha(alpha, power)
     model.check_sizes(sizes)
 
     def f(e):

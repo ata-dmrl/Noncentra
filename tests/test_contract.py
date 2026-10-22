@@ -43,7 +43,7 @@ def test_success_matches_result_schema(args):
     (["run", "t.nope", "post_hoc"], 2, "invalid_input"),
     (["run", "t.two_sample", "a_priori", "-d", "0.5", "--alpha", "1.5", "--power", "0.8"], 2, "invalid_input"),
     (["run", "t.two_sample", "a_priori", "--alpha", "0.05", "--power", "0.8"], 2, "invalid_input"),
-    (["run", "t.two_sample", "a_priori", "-d", "0", "--alpha", "0.05", "--power", "0.8"], 3, "no_solution"),
+    (["run", "t.two_sample", "a_priori", "-d", "0", "--alpha", "0.05", "--power", "0.8"], 2, "invalid_input"),  # G*Power refuses |d| <= 1e-5
     (["run", "t.two_sample", "bogus"], 2, "invalid_input"),
     (["run", "f.anova_oneway", "a_priori", "-d", "0.25", "--alpha", "0.05", "--power", "0.8", "--tails", "1"],
      2, "invalid_input"),
