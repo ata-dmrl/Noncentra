@@ -54,9 +54,9 @@ gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0.5 --alpha 0.05 --p
 ## Testler
 
 ```bash
-pytest                                                    # hepsi (~2000 test)
-pytest tests/test_spec.py                                 # SPEC.md'deki Gherkin örnekleri
-pytest tests/test_gpower_clone.py tests/test_mcp_contract.py
+python -m pytest                                          # hepsi (~2000 test)
+python -m pytest tests/test_spec.py                       # SPEC.md'deki Gherkin örnekleri
+python -m pytest tests/test_gpower_clone.py tests/test_mcp_contract.py
 python -m noncentra.difftest_paired --report tests/T_PAIRED_DIFF_REPORT.md   # diferansiyel test + rapor
 python -m noncentra.difftest_paired --regenerate          # statsmodels vektörlerini yeniden üret
 ```
@@ -141,7 +141,7 @@ noncentra-agent-eval --lang both --system1   # 10 soru, Türkçe ve İngilizce
 | AGENT_COST.md | [AGENT_COST.md](AGENT_COST.md) |
 | prompts/ | [prompts/](prompts/) |
 | oracle/ | `oracle/t-paired/boundary_harvest.csv` + 55 ekran görüntüsü, `oracle/t-paired/statsmodels_vectors.csv` (780), `oracle/public_vectors.jsonl`; ızgara vektörleri `noncentra/reference/` |
-| src/ | Python paketi olarak `noncentra/` (motor `core/` + `catalog/`; arayüzler `contract.py`, `contract_cli.py`, `mcp_contract.py`) |
+| src/ | Python paketi olarak `noncentra/` ([src/README.md](src/README.md) yönlendirir) (motor `core/` + `catalog/`; arayüzler `contract.py`, `contract_cli.py`, `mcp_contract.py`) |
 | tests/ | `tests/`, uyum raporu [tests/T_PAIRED_DIFF_REPORT.md](tests/T_PAIRED_DIFF_REPORT.md) |
 
 Ayrıntılı bulgular: [docs/t-paired-validation.md](docs/t-paired-validation.md), [docs/teardown-report.md](docs/teardown-report.md).
@@ -165,10 +165,23 @@ Motorun ortamı: `gpower-clone --version` (ör. Python 3.13, scipy 1.18). scipy 
 > Not: `docs/teardown-report.md`'ye göre Ghidra bu çalışmada kurulu değildi ve REA'nın UI araçları Windows'ta
 > kullanılamadı; ekran görüntüsü bu durumu dürüstçe göstermeli.
 
+**Fonksiyon adresleri için betik.** LEDGER.md'deki [REA] satırları şimdilik dize adresine dayanıyor. GPowerNT.exe'si olan
+herkes şu komutla, decompile etmeden (yalnızca disassembly), o dizeleri kullanan fonksiyonların adreslerini ve bu
+fonksiyonların karşılaştırdığı sabitleri (1e-05, 1e-07, 0.5, 3, 2147483646) çıkarabilir:
+
+```bash
+pip install pefile capstone
+python teardown/rea_xrefs.py /yol/GPowerNT.exe > teardown/evidence/rea_xrefs.md   # evidence/ git'e girmez
+```
+
+Çıktıdaki eşleşmeler LEDGER.md'deki [AJAN] satırlarını (B3 yuvarlama, B5 eşiği, C5 arama) [REA]'ya çevirir; yalnızca
+alıntılanan satırları LEDGER'a taşıyın. Betik el ile derlenmiş bir örnek görüntüyle test edildi (`tests/test_rea_xrefs.py`).
+
 ## Demo
 
-> ⚠ **Ekip dolduracak:** 60 saniyelik CLI videosu bağlantısı. Önerilen akış: `--version` → a priori (N = 54) →
-> post hoc → güç < α hatası → `pytest tests/test_spec.py`.
+60 saniyelik CLI videosu: [docs/demo/demo.mp4](docs/demo/demo.mp4). Videodaki her çıktı gerçek komut çıktısıdır;
+`python docs/demo/make_demo.py` ile yeniden üretilir. Akış: `--version` → a priori (N = 54) → post hoc (açık vektör) →
+güç < α hatası → N < 3 hatası → SPEC örnekleri → diferansiyel test → MCP = CLI.
 
 ## Etik
 

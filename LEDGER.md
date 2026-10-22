@@ -103,7 +103,9 @@ görüntüsüyle ayrıca kanıtlandı (`oracle/t-paired/screenshots/`).
 
 ## Açık işler: [AJAN] satırlarını [REA]'ya çevirmek
 
-Puan yalnızca [REA] satırlarına verildiği için Ghidra ile şunlara bakılmalı (hepsi bir başvuru adresinden başlıyor):
+Puan yalnızca [REA] satırlarına verildiği için şunlara bakılmalı (hepsi bir başvuru adresinden başlıyor). İlk adım tek komut:
+`python teardown/rea_xrefs.py GPowerNT.exe` her dize için içeren fonksiyonun adresini ve o fonksiyonun karşılaştırdığı
+sabitleri listeler (decompile yok, yalnızca disassembly). Ayrıntı için Ghidra'da aynı adreslere gidin.
 
 1. **C5, a priori arama ve durma koşulu:** `0x004880F9` (B2 kontrolü, a priori girişine yakın) çevresindeki fonksiyonun
    çağırdığı döngü; karşılaştırma `power >= target` ve tam sayıya geçiş.
