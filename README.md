@@ -179,11 +179,6 @@ Motorun ortamı: `gpower-clone --version` (ör. Python 3.13, scipy 1.18). scipy 
 
 ## REA kurulum kontrolü
 
-> ⚠ **Ekip dolduracak:** Ödev, ajana *"REA araçları ve Ghidra sağlayıcısı bu oturumda kullanılabilir mi?"* sorusunun
-> cevabının ekran görüntüsünü istiyor. `docs/img/rea-check.png` olarak ekleyip buraya bağlayın.
-> Not: `docs/teardown-report.md`'ye göre Ghidra bu çalışmada kurulu değildi ve REA'nın UI araçları Windows'ta
-> kullanılamadı; ekran görüntüsü bu durumu dürüstçe göstermeli.
-
 **Fonksiyon adresleri için betik.** LEDGER.md'deki [REA] satırları şimdilik dize adresine dayanıyor. GPowerNT.exe'si olan
 herkes şu komutla, decompile etmeden (yalnızca disassembly), o dizeleri kullanan fonksiyonların adreslerini ve bu
 fonksiyonların karşılaştırdığı sabitleri (1e-05, 1e-07, 0.5, 3, 2147483646) çıkarabilir:
@@ -195,12 +190,6 @@ python teardown/rea_xrefs.py /yol/GPowerNT.exe > teardown/evidence/rea_xrefs.md 
 
 Çıktıdaki eşleşmeler LEDGER.md'deki [AJAN] satırlarını (B3 yuvarlama, B5 eşiği, C5 arama) [REA]'ya çevirir; yalnızca
 alıntılanan satırları LEDGER'a taşıyın. Betik el ile derlenmiş bir örnek görüntüyle test edildi (`tests/test_rea_xrefs.py`).
-
-## Demo
-
-60 saniyelik CLI videosu: [docs/demo/demo.mp4](docs/demo/demo.mp4). Videodaki her çıktı gerçek komut çıktısıdır;
-`python docs/demo/make_demo.py` ile yeniden üretilir. Akış: `--version` → a priori (N = 54) → post hoc (açık vektör) →
-güç < α hatası → N < 3 hatası → SPEC örnekleri → diferansiyel test → MCP = CLI.
 
 ## Etik
 
@@ -221,4 +210,4 @@ G*Power'ın yazarlarına teşekkür ederiz; bu çalışma onların bilim dünyas
 
 ## Takım
 
-Atakan Demirel, Erva Keskin, Safiye Özkan ⚠ (dördüncü üye varsa ekleyin).
+Atakan Demirel, Erva Keskin, Safiye Özkan.
