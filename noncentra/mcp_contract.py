@@ -30,11 +30,12 @@ def power_analysis(test: str, mode: str, tails: Value = None, dz: Value = None, 
                    f: Value = None, f2: Value = None, alpha: Value = None, power: Value = None,
                    beta_alpha_ratio: Value = None, n_total: Value = None, n1: Value = None,
                    n2: Value = None, ratio: Value = None, groups: Value = None,
-                   predictors: Value = None) -> str:
+                   predictors: Value = None, w: Value = None, df: Value = None) -> str:
     """Statistical power analysis (G*Power-compatible, clean-room engine).
 
     test: t-paired (matched pairs, e.g. blood pressure before/after in the same patients),
-          t2-indep, anova-oneway, multireg-r2.
+          t2-indep, anova-oneway, multireg-r2. chi2-contingency (w, df) is part of the
+          contract but not implemented here: it returns code UNSUPPORTED.
     mode: a-priori (needs power, returns n_total) | post-hoc (needs n_total, returns power)
           | compromise | criterion | sensitivity.
     t-paired fields: a-priori tails, dz, alpha, power; post-hoc tails, dz, alpha, n_total;

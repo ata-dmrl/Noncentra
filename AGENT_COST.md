@@ -10,7 +10,7 @@
 | 1 | 2026-10-16 | ⚠ (ata-dmrl) | ⚠ | Aşama 0–1: statik teardown (PE başlığı, importlar, dizeler), test kataloğu → `docs/teardown-report.md` | ⚠ | ⚠ | ⚠ |
 | 2 | 2026-10-16 → 21 | ⚠ (ata-dmrl) | ⚠ | Aşama 2: Win32 otomasyonuyla G*Power'dan 183 + 198 vektör toplama (`teardown/harvest.py`); ilk motor + CLI + MCP + web | ⚠ | ⚠ | ⚠ |
 | 3 | 2026-10-21 | ⚠ (Erva Keskin) | ⚠ | Eşleştirilmiş test sınır vektörleri (55 vaka, ekran görüntülü), B1–B6 bulguları, scipy 1.18 düzeltmesi → `docs/t-paired-validation.md` | ⚠ | ⚠ | ⚠ |
-| 4 | 2026-10-22 | Safiye Özkan | Claude (claude.ai, Opus 5.5) | Sözleşme katmanı (`gpower-clone`, tek araçlı MCP), G*Power sınır kurallarının motora eklenmesi, t-paired diferansiyel test ve rapor, teslim belgeleri | ⚠ (kullanım ekranından) | ⚠ | aşağıda |
+| 4 | 2026-10-22 | Safiye Özkan | Claude (claude.ai, Opus 5.5) | Sözleşme katmanı (`gpower-clone`, tek araçlı MCP), G*Power sınır kurallarının motora eklenmesi, t-paired diferansiyel test ve rapor, teslim belgeleri, AI ajanı ve değerlendirme düzeneği | ⚠ (kullanım ekranından) | ⚠ | aşağıda |
 
 ## Oturum 4 süreç kaydı
 
@@ -22,15 +22,22 @@
 | Sınır kuralları | Motor değişince eski 5 xfail "artık eşleşiyor" diye düştü (katı xfail tasarımı amacına uygun çalıştı); listeden çıkarıldı. Eski CLI'nin d = 0 testi yeni davranışa güncellendi. | 2 |
 | Diferansiyel test | 780 statsmodels vektörü üretildi. 30 NaN vakası önce "açıklanmış" sayıldı; sonra üst kuyruk gücüyle gerçekten sınanacak şekilde düzeltildi. Rapor metni 3 kez düzeltildi. | 3 |
 | Belgeler | SPEC.md örnek tabloları `tests/test_spec.py` ile çalıştırılabilir yapıldı (52 satır). | 1 |
+| Ajan | MCP istemcisi + Claude araç döngüsü, Sistem 1 sınıflandırıcı, 10 soruluk set, puanlama. Sahte modelle testte χ² sorusunda MCP şemasında `w`/`df` alanlarının eksik olduğu görüldü; eklendi. | 2 |
 
 Toplam test: 881 → 1975 civarı (sözleşme, MCP eşdeğerliği, diferansiyel, SPEC testleri).
 
-## Token karşılaştırması (ajan katmanı yapılmadı)
+## Token karşılaştırması: MCP ve GUI
 
-Ödev, MCP üzerinden ve GUI (ekran görüntüsü) üzerinden aynı soruların token/süre/doğruluk karşılaştırmasını yalnızca
-+10 ajan katmanı için istiyor. Bu katman yapılmadığı için ölçüm yok. Kaba bir ölçek fikri: bir `gpower-clone`
-çağrısı ve yanıtı ~60 + ~40 karakter, yani birkaç düzine token; bir ekran görüntüsü çözünürlüğe göre yüzlerce ile
-binlerce token arası. Bu bir **ölçüm değil**, ajan katmanı yapılırsa ölçülmesi gereken şey.
+Ayrıntı: [eval/GUI_COMPARISON.md](eval/GUI_COMPARISON.md).
+
+- **Hesaplanan (ölçüm değil):** Repodaki gerçek G*Power ekran görüntüleri ana pencere için 708×802 px, yani görüntü başına
+  ~758 token; uyarı kutusu ~125 token. Bir `gpower-clone` çağrısı ve yanıtı ~200 karakterlik JSON, birkaç düzine token.
+- **MCP yolu, ölçülecek:** ⚠ `noncentra-agent-eval` API anahtarıyla çalıştırılınca soru başına token ve süre
+  `eval/results.jsonl` ve `eval/RESULTS.md`'ye yazılır; `python -m noncentra.agent.gui_tokens` tabloyu günceller.
+- **GUI yolu, ölçülecek:** ⚠ Windows + G*Power + bilgisayar kullanımı aracıyla, `eval/GUI_COMPARISON.md`'deki protokolle.
+
+Ajan katmanı, ajanın oturum 4'te yazıldığı ortamda API anahtarı olmadığı için yalnızca senaryolu sahte modelle uçtan uca
+test edildi (`tests/test_agent.py`).
 
 ## Neyi farklı yapardık
 

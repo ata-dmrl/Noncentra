@@ -6,7 +6,7 @@
 |---|---|
 | Temel: CLI (`gpower-clone`, CONTRACT.md 1.0.0) | ✅ Yapıldı |
 | Bonus +15: MCP sunucusu (`gpower-clone-mcp`, tek araç `power_analysis`) | ✅ Yapıldı |
-| Bonus +10: AI ajanı | ❌ Yapılmadı |
+| Bonus +10: AI ajanı (MCP üzerinden, Türkçe; `noncentra-agent`) | ✅ Yapıldı · ⚠ değerlendirme sonuçları API anahtarıyla `noncentra-agent-eval` çalıştırılınca `eval/RESULTS.md`'ye yazılır |
 
 Noncentra, G*Power 3.1.9.7'nin *Means: Difference between two dependent means (matched pairs)* hesabını
 davranışından yeniden yazan, komut satırından ve MCP'den çağrılabilen bir motordur. G*Power değildir ve onun
@@ -96,6 +96,40 @@ yapılır, böylece `45.5` gibi bir N iki yolda da aynı `INVALID_VALUE` hatası
 | `beta` | compromise |
 | `dz` | sensitivity |
 | `error`, `code`, `field` | hata durumunda (kodlar CONTRACT.md §2.4) |
+
+## AI ajanı
+
+Hekimin kendi diliyle sorduğu soruyu `power_analysis` MCP aracını çağırarak yanıtlar. **Ajan hesap yapmaz:** dil modeli
+yalnızca MCP araç listesini görür; her araç çağrısı ayrı bir süreçte çalışan MCP sunucusuna gider ve sayı oradan döner.
+
+```bash
+pip install -e ".[agent]"
+export ANTHROPIC_API_KEY=...          # ajanın dil modeli için
+noncentra-agent "Aynı hastalarda tedavi öncesi ve sonrası tansiyon ölçeceğiz. dz = 0,5, yalnızca düşüş iddia ediyoruz, α = 0,05, güç %95. Kaç hasta gerekir?"
+noncentra-agent --system1 "..."       # önce Sistem 1 sınıflandırıcı
+noncentra-agent-eval --lang both --system1   # 10 soru, Türkçe ve İngilizce
+```
+
+| Parça | Dosya |
+|---|---|
+| Ajan döngüsü (Claude + MCP istemcisi, stdio) | `noncentra/agent/agent.py` |
+| Sistem kuralları (hesap yapma, "orta etki"yi sessizce varsayma, yön → kuyruk) | `noncentra/agent/prompts.py` |
+| Sistem 1 sınıflandırıcı | `noncentra/agent/classifier.py` |
+| 10 soruluk değerlendirme seti: beklenen aile, parametreler, N; her birinin İngilizce çevirisi | `eval/questions.jsonl` |
+| Değerlendirme çalıştırıcısı → `eval/RESULTS.md`, `eval/results.jsonl` | `noncentra/agent/evaluate.py` |
+| Araç çağrı kayıtları (CONTRACT.md §8 alanları) | `logs/agent_calls.jsonl` |
+| MCP ve GUI token karşılaştırması | `eval/GUI_COMPARISON.md`, `noncentra/agent/gui_tokens.py` |
+
+- **Varsayılan modeller:** ajan `claude-sonnet-5-5`, Sistem 1 `claude-haiku-5-5` (ortam değişkenleri
+  `NONCENTRA_AGENT_MODEL`, `NONCENTRA_CLASSIFIER_MODEL`).
+- **Sistem 1 (Jev yerine):** Jev erişimimiz olmadığı için ödevdeki etiket setine (`t2-indep`, `t-paired`, `anova-oneway`,
+  `chi2-contingency`, `multireg-r2`, `ambiguous`, `unsupported`) zorunlu araç çağrısıyla kısıtlanmış bir LLM kullanıyoruz.
+  Güven 0,75'in altındaysa ya da etiket `ambiguous`/`unsupported` ise soru araştırmacıya geri gider; sınıflandırıcı hiçbir sayı
+  üretmez. Kalibrasyon tablosu `eval/RESULTS.md`'de.
+- **Değerlendirme setinde iki tuzak soru var:** q08 (χ²; bu sistem desteklemiyor, doğru davranış sayı uydurmamak) ve q09
+  ("orta etki"; doğru davranış varsayımı sessizce yapmadan sormak).
+- **Test:** `tests/test_agent.py` bütün düzeneği (gerçek MCP sunucu süreci, log, puanlama) senaryolu sahte bir modelle uçtan
+  uca çalıştırır; API anahtarı gerektirmez. Gerçek model sonuçları değildir.
 
 ## Teslim dosyaları
 
