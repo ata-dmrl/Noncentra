@@ -23,6 +23,9 @@ def command():
     raw = os.environ.get("GPOWER_CLONE", "gpower-clone")
     parts = shlex.split(raw, posix=(os.name != "nt"))
     if len(parts) == 1 and shutil.which(parts[0]) is None:
+        # Not installed (pip install -e .): run the same entry point as a module, still as a subprocess.
+        if "GPOWER_CLONE" not in os.environ and (ROOT / "noncentra" / "contract_cli.py").exists():
+            return [sys.executable, "-m", "noncentra.contract_cli"]
         return None
     if parts[0] == "python":
         parts[0] = sys.executable

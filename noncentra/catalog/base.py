@@ -6,6 +6,8 @@ does the rest, so adding a test means writing `noncentrality` and `sizes_from_n`
 """
 import math
 
+from ..core.errors import InputError
+
 
 class TestModel:
     name = ""
@@ -49,13 +51,23 @@ class TestModel:
         ncp, df = self.noncentrality(effect, self.sizes_from_n(n))
         return self.power_terms(ncp, df, alpha)[0]
 
+    @property
+    def min_n_given(self) -> int:
+        """Smallest sample size accepted when N is an input (post hoc, sensitivity, ...).
+
+        Can differ from min_n, the floor a priori may return: see PairedT.
+        """
+        return self.min_n
+
     def check_sizes(self, sizes: dict) -> None:
         missing = [k for k in self.size_keys if k not in sizes]
         if missing:
-            raise ValueError(f"{self.name} needs sample sizes {missing}")
+            raise InputError(f"{self.name} needs sample sizes {missing}", "MISSING_PARAM", missing[0])
         for k in self.size_keys:
-            if int(sizes[k]) != sizes[k] or sizes[k] < self.min_n:
-                raise ValueError(f"{k} must be an integer >= {self.min_n}")
+            if int(sizes[k]) != sizes[k]:
+                raise InputError(f"{k} must be an integer, got {sizes[k]}", "INVALID_VALUE", k)
+            if sizes[k] < self.min_n_given:
+                raise InputError(f"{k} must be >= {self.min_n_given}, got {sizes[k]}", "OUT_OF_RANGE", k)
 
     def extra_output(self) -> dict:
         return {}

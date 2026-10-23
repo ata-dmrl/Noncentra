@@ -38,7 +38,8 @@ def test_analyze_matches_core():
 
 @pytest.mark.parametrize("body, status, code", [
     ({**REQUEST, "test": "nope"}, 400, "invalid_input"),
-    ({**REQUEST, "params": {"effect_size": 0, "alpha": 0.05, "power": 0.8}}, 422, "no_solution"),
+    # G*Power refuses an effect size of 0 as input (CONTRACT OUT_OF_RANGE), see tests/test_contract.py
+    ({**REQUEST, "params": {"effect_size": 0, "alpha": 0.05, "power": 0.8}}, 400, "invalid_input"),
     ({"test": "t.paired"}, 400, "invalid_input"),
 ])
 def test_errors(body, status, code):

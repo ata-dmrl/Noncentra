@@ -20,17 +20,13 @@ ROWS = list(csv.DictReader(CSV.open(encoding="utf-8")))
 
 TOL = 1e-6
 
-POWER_BELOW_ALPHA = "G*Power refuses power < alpha ('Power must be greater than or equal to alpha.'); the engine solves it"
-N_FLOOR = "G*Power refuses N < 3 in post hoc and sensitivity; the engine accepts N = 2"
 FRACTIONAL_N = "G*Power rounds a fractional N half up (3.4 -> 3, 3.5 -> 4); the engine refuses it"
 NEGATIVE_DZ = "for dz < 0 G*Power reports a negative critical t and a one-tailed test turns to the lower tail"
 
+# Fixed on 2026-10-22: power < alpha (p016, p021) and N < 3 when N is an input
+# (p029, p030, p047) are now refused by the engine, as in G*Power.
 DIVERGENCES = {
-    "p016_a_priori": POWER_BELOW_ALPHA,
-    "p021_a_priori": POWER_BELOW_ALPHA,
     "p023_a_priori": NEGATIVE_DZ,
-    "p029_post_hoc": N_FLOOR,
-    "p030_post_hoc": N_FLOOR,
     "p033_post_hoc": FRACTIONAL_N,
     "p034_post_hoc": FRACTIONAL_N,
     "p035_post_hoc": FRACTIONAL_N,
@@ -41,7 +37,6 @@ DIVERGENCES = {
     "p040_post_hoc": FRACTIONAL_N,
     "p044_post_hoc": NEGATIVE_DZ,
     "p045_post_hoc": NEGATIVE_DZ,
-    "p047_sensitivity": N_FLOOR,
 }
 
 

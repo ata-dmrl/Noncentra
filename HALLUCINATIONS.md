@@ -1,28 +1,68 @@
-# Halüsinasyon günlüğü
+# HALLUCINATIONS.md — Ajanın yanlış çıkardıkları
 
-Ajanın (Claude, inceleme oturumu) kendinden emin biçimde söylediği ama yanlış çıkan şeyler. Her kayıtta
-iddianın ne olduğu, nasıl fark edildiği ve onu hangi testin yakaladığı ya da bundan sonra yakalayacağı yazıyor.
-Kimlikler [LEDGER.md](LEDGER.md) kayıtlarına bağlıdır.
+Her madde: ajan ne dedi, gerçek ne, nasıl fark edildi, hangi test yakaladı. "Ajan" burada kodu ve belgeleri yazan
+AI oturumları ve araç zincirindeki AI bileşenleri demek.
 
-Ortak ders: Bu yanlışların hiçbiri hesap kodu okunarak bulunmadı. Hepsini G*Power'ın kendisine ya da bağımsız
-bir uygulamaya karşı yapılan diferansiyel test buldu. Ödevdeki ipucunu doğruluyor: "Bunun kanıtı hangi
-fonksiyonda?" sorusuna cevap verilemeyen her satır sınanana kadar [AJAN] sayılmalı.
+---
 
-## H-01 · Eşit olmayan grup oranında yuvarlama kuralı ve uydurulmuş gözlem (ciddi)
+## H1. "En küçük N her analizde 2"
 
-- **İddia:** Kodda şu yorum vardı: *"Observed in G*Power 3.1.9.7 (teardown harvest, ratio 3 -> 43/127): every
-  group is rounded up from the continuous solution separately."* Yani "G*Power her grubu ayrı yukarı yuvarlar"
-  ve "bu, oran 3 örneğinde gözlendi".
-- **Gerçek:** Bu kural aynı örnekte 43 + **128** verir, G*Power ise 43 + **127** veriyor. Yorum, kendi kanıtıyla
-  çelişen bir "gözlem" uydurmuştu. 63 eşit olmayan oran vakasından 23'ünde kural tutmuyor ve G*Power'ın gerçek
-  kuralı hâlâ belirlenemedi (LEDGER: eşit olmayan oran kaydı).
-- **Nasıl fark edildi:** Toplanan G*Power değerleriyle yapılan diferansiyel test, `h146_two_sample_a_priori`
-  satırında `n2: got 128, want 127` hatası verdi. Ajan sonradan yorumu düzeltmedi, sadece kuralı "bilinen fark"
-  diye işaretledi; bu da ayrıca bir eksiklik.
-- **Yakalayan test:** `tests/test_regression.py::test_reference_row[h146_two_sample_a_priori]`, şimdi de
-  `tests/contract/test_public_vectors.py::test_gpower_vector` (bu satırlar `note` ile xfail).
+- **Ajanın iddiası:** Eşleştirilmiş t testinde df = N − 1 ≥ 1 olması yeterli, yani en küçük N her analiz türünde 2.
+  Kodda `TestModel.min_n = 2` olarak yazıldı ve bütün modlar için kullanıldı.
+- **Gerçek:** G*Power N bir girdi olduğunda (post hoc, sensitivity) N < 3'ü reddediyor: "Total sample size is outside
+  the admissible range (3, 2147483646)". Ama a priori'de kendisi N = 2 önerebiliyor. Yani tek bir sınır yok, iki sınır var.
+- **Nasıl fark edildi:** Sınır vektörü toplanırken N = 1 ve N = 2 bilinçli olarak denendi. G*Power uyarı kutusu çıkardı (ekran görüntüsü
+  `oracle/t-paired/screenshots/p029_post_hoc_dialog0.png`). Binary'de mesaj dizesi bulundu (LEDGER B1, `0x005C6524`).
+- **Yakalayan test:** `tests/test_paired_boundary.py::test_paired_boundary[p029_post_hoc]` (ve p027, p028, p030, p047).
+  Düzeltmeden sonra: `tests/test_gpower_clone.py::test_error[post-hoc N=2]`, SPEC.md "G*Power'ın reddettiği girdiler" tablosu.
+- **Ders:** Matematiksel olarak geçerli olan, G*Power'ın kabul ettiğiyle aynı şey değil. Sınırlar kâhinden okunur.
 
-## H-02 · ANOVA a priori N, t testindeki gibi yuvarlanır
+## H2. "Negatif etki büyüklüğü simetriktir, yalnızca mutlak değeri önemli"
+
+- **Ajanın iddiası:** dz'nin işareti sonucu etkilemez; |dz| ile hesaplamak yeterli.
+- **Gerçek:** İki kuyrukta doğru (dz = −0.5 de N = 34 veriyor), ama G*Power kritik t'yi negatif gösteriyor (−2.0345153, p023).
+  Tek kuyrukta yanlış: dz = −0.5 testi sol kuyruğa çeviriyor; güç 0.6951493 (p045). Motor sağ kuyruğu kullanıp 7.1e-05 buldu.
+- **Nasıl fark edildi:** Sınır vektörlerine "geçersiz olması beklenen" girdi olarak dz = −0.5 eklendi; G*Power hata vermedi,
+  başka bir sonuç verdi.
+- **Yakalayan test:** `tests/test_paired_boundary.py::test_paired_boundary[p045_post_hoc]` (xfail, nedeni yazılı).
+  Sözleşme dz > 0 istediği için arayüzde `OUT_OF_RANGE` dönüyor: `tests/test_gpower_clone.py::test_error[dz negative]`.
+
+## H3. "Eşit olmayan oranda her grup ayrı ayrı yukarı yuvarlanır" (t2-indep; aynı motor)
+
+- **Ajanın iddiası:** n1 = ⌈n1*⌉, n2 = ⌈n1*·oran⌉; bu "G*Power'ın kuralı" diye koda yorum olarak yazıldı
+  (`catalog/base.py`, `round_sizes`).
+- **Gerçek:** Eşit oranda doğru (27/27), oran ≠ 1 olan 23 a priori vakada grup büyüklükleri ±1 farklı. Denenen 6 kuralın
+  hiçbiri hepsini açıklamıyor; G*Power'ın önerdiği N, bu vakaların 5'inde istenen gücü sağlamıyor bile.
+- **Nasıl fark edildi:** `noncentra/reference/t_tests_ratio_harvested.csv` ile diferansiyel test.
+- **Yakalayan test:** `noncentra diff` (difftest.py), satırlar `known_divergence` ile işaretli. Kendi ailemiz (t-paired) tek
+  gruplu olduğu için bu kural bizi etkilemiyor, ama aynı motoru paylaşan K1 takımı için önemli.
+
+## H4. Araç özeti sözleşmeye olmayan bir kural ekledi: "n_total çift sayı olmalı"
+
+- **Ajanın iddiası:** CONTRACT.md bağlantısı web özetleyici araçla okunduğunda özet şunu söyledi: *"n_total: integer ≥ 2
+  (the spec also describes it as the total pair count, which should be even)"*.
+- **Gerçek:** CONTRACT.md'de böyle bir kural yok. "Çift sayısı" (pair count) ifadesi yanlışlıkla "çift (even) sayı"ya
+  çevrilmiş. Bu kural uygulansaydı tek N'li bütün vektörler (ör. açık vektör N = 45) reddedilirdi ve kapı kaçardı.
+- **Nasıl fark edildi:** Kodlamadan önce sözleşmenin tam metni (öğrencinin eklediği dosya) satır satır okundu; özet ile
+  karşılaştırıldı.
+- **Yakalayan test:** Hiçbiri; kural koda girmeden yakalandı. Girseydi `tests/test_gpower_clone.py::test_public_vector[t-paired/a-priori]`
+  (N = 45) ve `tests/test_spec.py` hemen düşerdi.
+- **Ders:** Sözleşmeyi özetten değil, kaynağın kendisinden uygulamak. Özetleyici model kendinden emin cümle kurar.
+
+## H5. "scipy'nin kritik değeri her α için sonludur"
+
+- **Ajanın iddiası:** Compromise çözücüsü α'yı 1e-300'e kadar arayabilir; `scipy.stats.t.isf` her zaman büyük pozitif bir sayı döndürür.
+- **Gerçek:** scipy 1.18'de `t.isf(1e-300, 11)` **−inf** döndürüyor. β = 0 çıkıyor, aralık bulunamıyor ve compromise çöküyor
+  ("beta/alpha ratio not reachable").
+- **Nasıl fark edildi:** scipy güncellenince iki G*Power regresyon satırı (h134, h137) düştü.
+- **Yakalayan test:** `tests/test_regression.py` / `noncentra diff` (h134, h137). Düzeltme `core/distributions.py::t_crit`.
+
+## Oturum 1'in (ata-dmrl) ek kayıtları
+
+Aşağıdaki üç kayıt beş aileyi kapsayan inceleme oturumundan gelir; ayrıntılı kanıtlar [docs/ledger_all_families.md](docs/ledger_all_families.md).
+H3'e ek: o oturumda kod yorumu bu kuralı *"oran 3 → 43/127 gözlendi"* diye yanlış belgelemişti; kural aynı örnekte 43 + 128 verir.
+
+### H6 · ANOVA a priori N, t testindeki gibi yuvarlanır
 
 - **İddia:** Tek yönlü ANOVA'da gerekli N, kesirli çözümün yukarı yuvarlanmasıdır: f = 0.25, k = 3, güç 0.80 → **158**.
 - **Gerçek:** G*Power **159** veriyor. N'yi grup sayısının katına yuvarlıyor, yani gruplar eşit oluyor.
@@ -32,25 +72,7 @@ fonksiyonda?" sorusuna cevap verilemeyen her satır sınanana kadar [AJAN] sayı
   `tests/test_http_api.py::test_analyze_matches_core` (`n_total == 159`), açık vektör `anova-oneway/a-priori`
   (N = 305 = 5 × 61).
 
-## H-03 · "En küçük N = 2"
-
-- **İddia:** Motordaki `TestModel.min_n = 2` varsayımı: post hoc ve sensitivity N = 2'yi kabul eder.
-- **Gerçek:** G*Power bu modlarda N < 3'ü "Total sample size is outside the admissible range (3, 2147483646)"
-  hatasıyla reddediyor. A priori ise N = 2 önerebiliyor (`oracle/t-paired/boundary_harvest.csv` p010, p012).
-- **Nasıl fark edildi:** erva'nın sınır değer toplaması (p029, p030, p047), ekran görüntüsüyle.
-- **Yakalayan test:** `tests/test_paired_boundary.py::test_paired_boundary[p029_post_hoc]` (katı xfail),
-  `oracle/gpower_vectors.jsonl` içindeki hata beklenen satırlar.
-
-## H-04 · "Negatif etki büyüklüğü simetriktir"
-
-- **İddia:** Etki büyüklüğünün işareti önemsizdir; dz = −0.5 ile dz = 0.5 aynı gücü verir.
-- **Gerçek:** İki kuyrukta doğru. Tek kuyrukta G*Power testi sol kuyruğa çeviriyor: kritik t = −1.7291328,
-  güç 0.6951493. Motor sağ kuyruğu kullanıp 7.1e-05 buluyor.
-- **Nasıl fark edildi:** erva'nın p045 vakası. CONTRACT.md'de dz > 0 olduğu için sözleşme katmanında bu girdi
-  zaten OUT_OF_RANGE olmalı.
-- **Yakalayan test:** `tests/test_paired_boundary.py::test_paired_boundary[p045_post_hoc]`.
-
-## H-05 · statsmodels `FTestPower` regresyon için doğrudan kullanılabilir
+### H7 · statsmodels `FTestPower` regresyon için doğrudan kullanılabilir
 
 - **İddia:** Bağımsız çapraz kontrolde regresyon gücü `FTestPower.power(effect_size=√f², df_num=p, df_denom=N−p−1)`
   ile hesaplanır.
@@ -60,7 +82,7 @@ fonksiyonda?" sorusuna cevap verilemeyen her satır sınanana kadar [AJAN] sayı
   aracının hatasıydı.
 - **Yakalayan test:** `tests/test_differential.py::test_matches_statsmodels` (`sm_reg_*` satırları).
 
-## H-06 · "G*Power muhtemelen Delphi / C++Builder ile yazılmış"
+### H8 · "G*Power muhtemelen Delphi / C++Builder ile yazılmış"
 
 - **İddia:** İlk planda ajan, çatıyı "büyük ihtimalle Delphi/C++Builder" diye tahmin etti.
 - **Gerçek:** Program `mfc140u.dll`'e bağlı bir MFC/C++ uygulaması. Visual Studio 2022 linker 14.36 ile derlenmiş.
@@ -69,9 +91,3 @@ fonksiyonda?" sorusuna cevap verilemeyen her satır sınanana kadar [AJAN] sayı
   kanıtsız bir cümlenin ne kadar kolay kurulduğunu gösteriyor.
 - **Yakalayan:** statik inceleme (test yok).
 
-## Açık şüpheler (henüz kanıtlanmadı, [AJAN])
-
-- G*Power'ın a priori çözücüsünün durma koşulu (iterasyon toleransı). Eşit olmayan oranda gözlenen ±1 farklarının
-  nedeni bu olabilir; kanıt için Ghidra'da çözücünün bulunması gerekiyor.
-- Eşleştirilmiş compromise satırlarında scipy 1.18'in `t.isf` alt taşması (erva). scipy 1.15'te yeniden
-  üretilemedi (LEDGER).

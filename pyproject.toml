@@ -3,16 +3,21 @@ name = "noncentra"
 version = "0.1.0"
 description = "Clean-room statistical power analysis, validated against G*Power outputs"
 requires-python = ">=3.11"
-dependencies = ["scipy", "numpy"]
+dependencies = ["scipy>=1.15", "numpy"]
 
 [project.optional-dependencies]
 diff = ["statsmodels"]
-mcp = ["mcp"]
-test = ["pytest", "jsonschema", "statsmodels"]
+mcp = ["mcp>=1.2,<2"]
+agent = ["mcp>=1.2,<2", "anthropic>=0.40"]
+test = ["pytest", "jsonschema", "statsmodels", "pillow"]
 
 [project.scripts]
 noncentra = "noncentra.cli:main"
 noncentra-mcp = "noncentra.mcp_server:main"
+gpower-clone = "noncentra.contract_cli:main"
+gpower-clone-mcp = "noncentra.mcp_contract:main"
+noncentra-agent = "noncentra.agent.agent:main"
+noncentra-agent-eval = "noncentra.agent.evaluate:main"
 
 [tool.setuptools.packages.find]
 include = ["noncentra*"]
@@ -26,4 +31,6 @@ markers = [
     "regression: golden values from G*Power",
     "differential: comparison against independent implementations",
     "contract: black-box tests of the gpower-clone CLI (CONTRACT.md)",
+    "oracle: every harvested G*Power vector through the CLI (slow; run with -m oracle or tests/run_compliance.py)",
 ]
+addopts = "-m 'not oracle'"

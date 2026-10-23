@@ -94,9 +94,22 @@ ekran görüntüsüyle kanıtlandı.
 2. "Negatif etki büyüklüğü simetriktir, yalnızca mutlak değer önemli" varsayımı iki kuyrukta doğru, tek kuyrukta
    yanlış (B5). Bunu p045 yakaladı.
 
+## Sözleşme katmanı ve motor düzeltmeleri (2026-10-22)
+
+- `gpower-clone` (CONTRACT.md 1.0.0) eklendi: `noncentra/contract.py` (ince adaptör) + `noncentra/contract_cli.py`.
+  MCP: `noncentra/mcp_contract.py`, tek araç `power_analysis`; ikisi de `contract.run()` çağırır.
+- Motor artık G*Power gibi davranıyor:
+  - B2: a priori ve sensitivity'de güç < α → `INCONSISTENT` (p016, p021, p048).
+  - B1: eşleştirilmiş testte N girdi olduğunda N < 3 → `OUT_OF_RANGE` (p027–p030, p047). A priori hâlâ N = 2 döndürebiliyor (p010, p014).
+  - B4: α ya da güç < 1e-07 → `OUT_OF_RANGE`; 1e-07 kabul.
+  - B5: a priori'de |dz| ≤ 0.00001 → `OUT_OF_RANGE` (p022 mesajındaki eşik).
+- Bilinçli bırakılan farklar (sözleşme bunları zaten reddediyor): kesirli N → `INVALID_VALUE` (B3), dz ≤ 0 → `OUT_OF_RANGE` (B5).
+  `tests/test_paired_boundary.py` motor seviyesinde bunları xfail tutuyor; `tests/test_gpower_clone.py` aynı 55 satırı sözleşme
+  arayüzünden geçirip hepsinin beklenen hata ya da G*Power değeriyle sonuçlandığını doğruluyor.
+- Açık vektörler: `oracle/public_vectors.jsonl` (CONTRACT.md §9). Uygulanan 4 ailenin 20 vektörü geçiyor; `chi2-contingency` → `UNSUPPORTED`.
+- `tests/test_mcp_contract.py`: 25 açık vektör + 5 ek vakada MCP çıktısı CLI stdout'uyla aynı.
+
 ## Açık işler
 
-- B1, B2 ve B5 için motorda değişiklik gerekip gerekmediğine takım karar vermeli. Değişiklik yapılırsa ilgili
-  satırları `tests/test_paired_boundary.py` içindeki `DIVERGENCES` listesinden silin; katı xfail bunu zorunlu kılıyor.
-- CONTRACT.md'deki `gpower-clone --test t-paired` arayüzü bu repoda henüz yok. Açık vektörler sözleşme
-  biçimiyle otomatik test edilemiyor.
+- SPEC.md (Gherkin), LEDGER.md, HALLUCINATIONS.md, AGENT_COST.md, prompts/, README.md.
+- Ghidra ile [REA] kanıtlarını güçlendirmek: a priori N araması ve durma koşulu, N ≥ 3 kontrolünün fonksiyonu.
