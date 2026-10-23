@@ -38,6 +38,8 @@ SPECS = {
                                  "effect": "Effect size f²", "critical": "Critical F",
                                  "options": {"tested": "Number of tested predictors",
                                              "predictors": "Total number of predictors"}},
+    "chi2.contingency": {"family": "χ² tests", "title": "Goodness-of-fit tests: Contingency tables",
+                         "effect": "Effect size w", "critical": "Critical χ²", "options": {"df": "Df"}},
 }
 
 

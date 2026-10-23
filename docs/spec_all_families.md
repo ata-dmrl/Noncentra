@@ -3,7 +3,7 @@
 Noncentra, G*Power 3.1.9.7'nin güç analizlerinin bir kısmını temiz oda kuralıyla yeniden yazar. Bu belge
 uygulamanın neyi, hangi doğrulukla yapması gerektiğini tanımlar.
 
-- Davranışla ilgili her gereksinim, [kanıt defterindeki](docs/EVIDENCE.md) bir ya da daha fazla kayda (E-xx) dayanır.
+- Davranışla ilgili her gereksinim, [kanıt defterindeki](LEDGER.md) bir ya da daha fazla kayda (E-xx) dayanır.
 - Her gereksinimi en az bir otomatik test doğrular.
 - `tests/test_traceability.py` bu bağları denetler: kanıtsız ya da testsiz bir gereksinim, var olmayan bir kanıta
   ya da teste yapılan atıf testleri kırar.
@@ -195,7 +195,7 @@ güç eğrisi çizer, indirilebilir bir rapor üretir.
 **Kabul kriteri:**
 - Her R'nin bir kabul kriteri ve en az bir testi vardır.
 - "Tasarım" olmayan her R en az bir E'ye bağlıdır.
-- Atıf yapılan her E, `docs/EVIDENCE.md`'de vardır ve her E en az bir R tarafından kullanılır.
+- Atıf yapılan her E, `LEDGER.md`'de vardır ve her E en az bir R tarafından kullanılır.
 - Atıf yapılan her test dosyası ve fonksiyonu vardır.
 - Repoda bulunan her kanıt dosyasının SHA-256'sı defterdekiyle aynıdır.
 - **Kanıt:** E-05, E-10, E-15, E-18

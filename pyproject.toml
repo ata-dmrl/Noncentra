@@ -25,4 +25,5 @@ testpaths = ["tests"]
 markers = [
     "regression: golden values from G*Power",
     "differential: comparison against independent implementations",
+    "contract: black-box tests of the gpower-clone CLI (CONTRACT.md)",
 ]

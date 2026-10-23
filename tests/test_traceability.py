@@ -1,4 +1,4 @@
-"""SPEC.md <-> docs/EVIDENCE.md <-> tests stay consistent (SPEC R-16, R-17, R-07).
+"""SPEC.md <-> LEDGER.md <-> tests stay consistent (SPEC R-16, R-17, R-07).
 
 The two documents are written for people; these tests read the few structured lines
 they share (### R-xx / ### E-xx headings, **Kanıt:** / **Test:** lines, and
@@ -13,8 +13,8 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-SPEC = (ROOT / "SPEC.md").read_text(encoding="utf-8")
-EVIDENCE = (ROOT / "docs" / "EVIDENCE.md").read_text(encoding="utf-8")
+SPEC = (ROOT / "docs" / "spec_all_families.md").read_text(encoding="utf-8")
+EVIDENCE = (ROOT / "docs" / "ledger_all_families.md").read_text(encoding="utf-8")
 
 
 def sections(text, prefix):
@@ -86,7 +86,7 @@ def test_evidence_hashes_match(path, digest):
     data = file.read_bytes()
     if file.suffix in (".csv", ".txt", ".json", ".md"):
         data = data.replace(b"\r\n", b"\n")
-    assert hashlib.sha256(data).hexdigest() == digest, f"{path} changed; update docs/EVIDENCE.md"
+    assert hashlib.sha256(data).hexdigest() == digest, f"{path} changed; update LEDGER.md"
 
 
 def test_no_gpower_artifacts_tracked():
