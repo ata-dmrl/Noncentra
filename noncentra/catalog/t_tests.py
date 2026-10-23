@@ -26,7 +26,7 @@ class _TModel(TestModel):
 
 class TwoSampleT(_TModel):
     name = "t.two_sample"
-    title = "Means: difference between two independent means (two groups)"
+    title = "Ortalamalar: İki bağımsız ortalamanın farkı (iki grup)"
     size_keys = ("n1", "n2")
 
     def __init__(self, tails: int = 2, ratio: float = 1.0):
@@ -49,7 +49,7 @@ class TwoSampleT(_TModel):
 
 class OneSampleT(_TModel):
     name = "t.one_sample"
-    title = "Means: difference from constant (one sample case)"
+    title = "Ortalamalar: Sabitten fark (tek örneklem)"
     size_keys = ("n",)
 
     def sizes_from_n(self, n):
@@ -64,7 +64,7 @@ class PairedT(OneSampleT):
     """Matched pairs: same math as one sample, with d = d_z on the differences."""
 
     name = "t.paired"
-    title = "Means: difference between two dependent means (matched pairs)"
+    title = "Eşleştirilmiş t testi: Önce ve sonra tansiyon karşılaştırması"
     effect_name = "dz"
 
     # G*Power 3.1.9.7 refuses N < 3 whenever N is an input ("Total sample size is
