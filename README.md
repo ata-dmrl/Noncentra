@@ -210,4 +210,4 @@ G*Power'ın yazarlarına teşekkür ederiz; bu çalışma onların bilim dünyas
 
 ## Takım
 
-Atakan Demirel, Erva Keskin, Safiye Özkan.
+Atakan Demirel, Erva Keskin, Safiye Özkan, Berat Işık
