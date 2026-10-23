@@ -67,7 +67,7 @@ def canvas():
     return Image.new("RGB", (W, H), BG)
 
 
-def header(img, step, title, sub=""):
+def header(img, step, title, sub="", right="Noncentra · G*Power 3.1.9.7 karşılaştırmalı tanıtım"):
     d = ImageDraw.Draw(img)
     d.rectangle([0, 0, W, 96], fill=PANEL)
     d.line([0, 96, W, 96], fill=LINE, width=2)
@@ -83,7 +83,7 @@ def header(img, step, title, sub=""):
     d.text((x, 48 if not sub else 36), title, font=font(BOLD, 30), fill=INK, anchor="lm")
     if sub:
         d.text((x, 70), sub, font=font(SANS, 19), fill=MUTED, anchor="lm")
-    d.text((W - 32, 48), "Noncentra · G*Power 3.1.9.7 karşılaştırmalı tanıtım", font=font(SANS, 17),
+    d.text((W - 32, 48), right, font=font(SANS, 17),
            fill=MUTED, anchor="rm")
 
 
