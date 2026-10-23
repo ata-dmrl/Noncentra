@@ -500,8 +500,9 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 
 // Light theme and chart styles for the standalone report (it must not depend on style.css).
 const REPORT_CSS = `
-:root { --ink:#1b2230; --muted:#5f6b7d; --line:#dfe3ea; --panel:#fff; --accent:#2f5bd3; --accent-soft:#e8eefc;
-  --series-1:#2f5bd3; --series-2:#d9822b; --series-3:#2a9d8f; --target:#b42318; --h0:#e0261b; --h1:#2a3fd6; --crit:#18b33a; }
+:root { --ink:#0F172A; --muted:#64748B; --line:#E2E8F0; --panel:#fff; --accent:#2563EB; --accent-soft:#EFF6FF;
+  --axis:#CBD5E1; --grid:#F1F5F9;
+  --series-1:#2563EB; --series-2:#D97706; --series-3:#0D9488; --target:#DC2626; --h0:#EF4444; --h1:#2563EB; --crit:#10B981; }
 * { box-sizing: border-box; }
 body { margin: 0; background: #fff; color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 main { max-width: 1100px; margin: 0 auto; padding: 28px 32px; }
@@ -519,7 +520,7 @@ table.text td:first-child { width: 42%; color: var(--muted); } table.text td:las
 .charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 figure { margin: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; break-inside: avoid; }
 figcaption { font-weight: 600; margin-bottom: 6px; } svg { width: 100%; height: auto; display: block; }
-.axis { stroke: var(--line); } .tick { fill: var(--muted); font-size: 11px; } .grid { stroke: var(--line); stroke-dasharray: 2 4; }
+.axis { stroke: var(--axis); } .tick { fill: var(--muted); font-size: 11px; } .grid { stroke: var(--grid); }
 .target { stroke: var(--target); stroke-dasharray: 5 4; } .marker { fill: #fff; stroke-width: 2.5; }
 .h0 { stroke: var(--h0); fill: none; stroke-width: 2.2; } .h1 { stroke: var(--h1); fill: none; stroke-width: 2.2; stroke-dasharray: 7 5; }
 .alpha-area { fill: var(--h0); opacity: .18; } .beta-area { fill: var(--h1); opacity: .2; } .crit { stroke: var(--crit); stroke-width: 2; }
