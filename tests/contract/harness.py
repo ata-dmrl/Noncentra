@@ -78,7 +78,12 @@ def compare(expected, actual):
 
 def check_vector(vector):
     """Run one vector; return (ok, details dict)."""
-    code, out, err, elapsed = run(argv(vector["input"]))
+    try:
+        code, out, err, elapsed = run(argv(vector["input"]))
+    except subprocess.TimeoutExpired as exc:
+        # One stuck call is a failed vector, not a reason to lose the whole report.
+        return False, {"exit": None, "stdout": "", "elapsed": exc.timeout,
+                       "problem": f"no answer within {exc.timeout} s"}
     lines = out.strip().splitlines()
     detail = {"exit": code, "stdout": out.strip(), "elapsed": elapsed}
     if len(lines) != 1:

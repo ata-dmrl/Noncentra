@@ -135,7 +135,10 @@ function numberField(key, label, value, attrs = {}) {
   const id = `f-${key}`;
   wrap.innerHTML = `<label for="${id}">${label}</label>`;
   const input = document.createElement("input");
-  Object.assign(input, { id, name: key, type: "number", inputMode: "decimal", value, step: "any", ...attrs });
+  // A text field, not type="number": a number field silently empties "0,95" (Turkish decimal
+  // comma) in some browsers, which then failed validation. num() accepts both comma and dot.
+  Object.assign(input, { id, name: key, type: "text", inputMode: "decimal", value, autocomplete: "off",
+                         spellcheck: false, ...attrs });
   wrap.append(input);
   return wrap;
 }
@@ -207,8 +210,9 @@ function buildRequest() {
   const get = (k) => $(`f-${k}`);
   const num = (k, integer) => {
     const el = get(k);
-    const v = Number(el.value);
-    const bad = el.value.trim() === "" || !Number.isFinite(v) || (integer && !Number.isInteger(v));
+    const text = el.value.trim().replace(",", ".");   // "0,95" and "0.95" both mean 0.95
+    const v = /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(text) ? Number(text) : NaN;
+    const bad = text === "" || !Number.isFinite(v) || (integer && !Number.isInteger(v));
     el.setAttribute("aria-invalid", String(bad));
     if (bad) throw new Error(`${el.labels[0].textContent} geçerli bir sayı olmalı`);
     return v;
